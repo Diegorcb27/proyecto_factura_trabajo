@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %} {% block title %}Lista de facturas{% endblock %}
+{% block content %} 
+
+<div
+class="container-sm mt-5"
+>
+<div
+    class="row justify-content-center align-items-center g-2"
+>
+    
+        <ul class="list-group">
+            <div class="col ">
+                    {% for factura in facturas %}
+                    <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
+                        Factura de {{factura.cliente}}
+                        <p><b>{{factura.total}}</b></p>
+                        <p><a href="{% url 'facturas:facturas_detail' factura.id %}">Leer mas</a></p>
+                        <a href="generate_pdf/{{factura.id}}"><button type="button" class="btn btn-warning" data-bs-dismiss="modal">generar PDF</button></a>
+                        <a href="reporte/{{factura.id}}"><button type="button" class="btn btn-success" data-bs-dismiss="modal">generar excel</button></a>
+                    </li>
+                    {% endfor %}
+            </div>
+            
+        </ul>
+    
+    
+</div>
+
+</div>
+
+
+{% endblock %}

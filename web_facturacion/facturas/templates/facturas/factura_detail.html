@@ -1,0 +1,99 @@
+{% extends 'core/base.html' %} {% block title %}Factura detail{% endblock %}
+{%block content %}
+
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center g-2">
+    <div class="col">
+      <h2>Factura de {{factura.cliente}}</h2>
+      <div>
+        <h1>Detalle de la Factura</h1>
+        <p><strong>Cliente:</strong> {{ factura.cliente }}</p>
+        <p><strong>Número de factura:</strong> {{ factura.numero_factura }}</p>
+        <p><strong>Fecha:</strong> {{ factura.fecha }}</p>
+        <p><strong>RIF:</strong> {{ factura.rif }}</p>
+        <p><strong>Domicilio Fiscal:</strong> {{ factura.domicilio_fiscal }}</p>
+        <p><strong>Teléfono:</strong> {{ factura.telefono }}</p>
+        <p><strong>Descripción:</strong> {{ factura.descripcion }}</p>
+        <p><strong>Forma de Pago:</strong> {{ factura.forma_pago }}</p>
+        <p><strong>Base imponible:</strong> {{ factura.importe }}</p>
+        <p><strong>IVA:</strong> {{ factura.iva }}</p>
+        <p><b>Total con IVA:</b>  {{ factura.calcular_total_con_iva }}</p>
+        {% if request.user.is_authenticated %} |
+        <a href="{% url 'facturas:facturas_update' factura.id %}">Editar</a> |
+        <a href="{% url 'facturas:facturas_delete' factura.id %}">Borrar</a> |
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#detalleFacturaModal"
+        >
+          Ver Detalles
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="detalleFacturaModal"
+  tabindex="-1"
+  aria-labelledby="detalleFacturaModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <!-- aqui cambiamos para los tipos de modales -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detalleFacturaModalLabel">
+          Detalles de la Factura {{factura.id}}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Cliente:</strong> {{ factura.cliente }}</p>
+        <p><strong>Número de Control:</strong> {{ factura.numero_factura }}</p>
+        <p><strong>Fecha:</strong> {{ factura.fecha }}</p>
+        <p><strong>RIF:</strong> {{ factura.rif }}</p>
+        <p><strong>Domicilio Fiscal:</strong> {{ factura.domicilio_fiscal }}</p>
+        <p><strong>Teléfono:</strong> {{ factura.telefono }}</p>
+        <p><strong>Descripción:</strong> {{ factura.descripcion }}</p>
+        <p><strong>Forma de Pago:</strong> {{ factura.forma_pago }}</p>
+        <p><strong>Importe:</strong> {{ factura.importe }}</p>
+        <p><strong>IVA:</strong> {{ factura.iva }}</p>
+        <p><b>Total con IVA:</b> {{ factura.calcular_total_con_iva }}</p>
+        <!-- Añade más detalles aquí según sea necesario -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+<!-- <div class="container">
+    <div class="row d-flex justify-content-center align-items-center g-2">
+      <div class="col">
+        <h2>Factura {{factura.id}} de {{request.user}}</h2>
+        <div>
+          {{factura.descripcion}}
+          <p><b>{{factura.total}}</b></p>
+          {% if request.user.is_staff %} |
+          <a href="{% url 'facturas:facturas_update' factura.id %}">Editar</a> |
+          <a href="{% url 'facturas:facturas_delete' factura.id %}">Borrar</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div> -->
