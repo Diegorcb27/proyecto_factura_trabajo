@@ -1,0 +1,36 @@
+{% extends 'core/base.html' %} {% block title %}Lista de contactos{% endblock %}
+{% block content %} 
+
+<div
+class="container-sm mt-5"
+>
+<div
+    class="row justify-content-center align-items-center g-2"
+>
+        <ul class="list-group">
+            <div class="col ">
+                {% for contacto in contactos %}
+                <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
+                    <h1>Contacto del cliente {{cliente.nombre}} {{cliente.id}}</h1>
+                    <h2>Detalle del contacto</h2>
+                    <p><strong>Contacto ID:</strong> {{ contacto.id }}</p>
+                    <p><strong>Nombre:</strong> {{ contacto.name }}</p>
+                    <p><strong>Cargo:</strong> {{ contacto.cargo }}</p>
+                    <p><strong>Teléfono:</strong> {{ contacto.telephone }}</p>
+                    <p><strong>Celular:</strong> {{ contacto.cellphone }}</p>
+                    <p><strong>Extension:</strong> {{ contacto.extension }}</p>
+                    <p><strong>Email:</strong> {{ contacto.email }}</p>
+                    <a class="btn btn-primary me-3" role="button" href="{% url 'cliente:contacto_update' contacto.id %}">Editar</a> 
+                    <a class="btn btn-primary" role="button" href="{% url 'cliente:contacto_delete' contacto.id %}">Borrar</a>
+                </li>
+                 
+                {% endfor %}
+                
+               
+         
+            
+            </div>
+        </ul>
+</div>
+</div>
+{% endblock %}

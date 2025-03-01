@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Factura Detail</title>
+    {% load static %}
+    <link
+      rel="stylesheet"
+      href="{% static 'css/factura_detail_pdf.css' %}"
+    />
+
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 20px;
+        }
+        
+        .reporte {
+            width: 600px;
+            margin: 0 auto;
+            border: 1px solid #000;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            background-color: aqua;
+        }
+        
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        strong {
+            display: inline-block;
+            width: 200px;
+        }
+        
+        .reporte p {
+            text-align: justify;
+        }
+         
+    </style>
+  </head>
+  <body>
+   
+            <div class="reporte">
+              <h5>
+                REPORTE DE FACTURAS PERZONALIZADO EN EXCEL CON DJANGO
+              </h5>
+              <p><strong>CLIENTE:</strong> {{cliente}}</p>
+              <br />
+              <br />
+              <p><strong>NÚMERO DE FACTURA:</strong> {{numero_factura}}</p>
+              <br />
+              <br />
+              <p><strong>R.I.F:</strong> {{rif}}</p>
+              <br />
+              <br />
+              <p><strong>DOMICILIO FISCAL:</strong> {{domicilio}}</p>
+              <br />
+              <br />
+              <p><strong>TELEFONO:</strong> {{telefono}}</p>
+              <br />
+              <br />
+              <p><strong>DESCRIPCIÓN:</strong> {{descripcion}}</p>
+              <br />
+              <br />
+              <p><strong>FORMA DE PAGO:</strong> {{forma_pago}}</p>
+              <br />
+              <br />
+              <p><strong>BASE IMPONIBLE:</strong> {{Importe}}Bs</p>
+              <br />
+              <br />
+              <p><strong>I.V.A (%) Bs::</strong> {{iva}}%</p>
+              <br />
+              <br />
+              <p><strong>TOTAL:</strong> {{total}}Bs</p>
+              <!-- Añade más detalles aquí según sea necesario -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
