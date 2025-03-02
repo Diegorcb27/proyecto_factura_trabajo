@@ -42,7 +42,7 @@ class FacturaListView(ListView):
     model=Factura
     context_object_name = 'factura_list'
     template_name = 'factura_list.html'
-    paginate_by=1
+    paginate_by=5
     def get_queryset(self):
     #     # Filtra las facturas según el usuario actual y aquellas que no tienen una fecha de completado
             

@@ -21,11 +21,12 @@
                         <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
             
                             <p><b>{{cliente.nombre}}</b></p>
-                            <p>{{cliente.email}}</p>
-                            <p>{{cliente.telefono_1}}</p>
-                            <p>{{cliente.telefono_2}}</p>
-                            <p>{{cliente.fecha_contrato}}</p>
-                            <p>{{cliente.num_empleados}}</p>
+                            <p><b>RIF:</b>  {{cliente.rif}}</p>
+                            <p><b>Email:</b>  {{cliente.email}}</p>
+                            <p><b>Telefono 1:</b>  {{cliente.telefono_1}}</p>
+                            <p><b>Telefono 2:</b>  {{cliente.telefono_2}}</p>
+                            <p><b>Fecha de contrato:</b>  {{cliente.fecha_contrato}}</p>
+                            <p><b>Número de empleados:</b>  {{cliente.num_empleados}}</p>
                             <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:facturas_por_cliente' cliente.id %}">facturas</a>
                             <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:contacto_create' cliente.id %}">Agregar contacto</a>
                             <a class="btn btn-primary me-3 mt-3" role="button" href="{% url 'cliente:contacto_por_cliente' cliente.id %}">contactos </a>
