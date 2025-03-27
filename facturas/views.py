@@ -43,17 +43,10 @@ class FacturaListView(ListView):
     context_object_name = 'factura_list'
     template_name = 'factura_list.html'
     paginate_by=5
-    def get_queryset(self):
-    #     # Filtra las facturas según el usuario actual y aquellas que no tienen una fecha de completado
-            
-    #               # Obtener el usuario actual
-        # usuario = self.request.user
-
-        # Obtener el cliente asociado al usuario (ajusta esto según tu lógica)
-        # cliente = Cliente.objects.get(usuario=usuario)
-
-        # Filtrar las facturas por usuario y cliente
-          return Factura.objects.all()
+    
+    def get_queryset(self): #ordena la factura por numero de factura
+        return Factura.objects.all().order_by('-numero_factura')
+  
            
     
     

@@ -7,8 +7,56 @@ class="container-sm mt-5"
 <div
     class="row justify-content-center align-items-center g-2"
 >
-        <ul class="list-group">
-            <div class="col ">
+        
+            
+                <div class="col ">
+                <a href="{% url 'cliente:contacto_create' cliente.id %}"><button type="button" class="btn btn-primary mb-3">  
+                    <i class="bi bi-plus"></i> Agregar contacto
+                  </button></a>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                            <th scope="col" >#</th>
+                            <th scope="col" style="text-align: center;">Contacto</th>
+                            <th scope="col" style="text-align: center;">Cargo</th>
+                            <th scope="col" style="text-align: center;">Email</th>
+                            <th scope="col" style="text-align: center;">Telefono</th>
+                            <th scope="col" style="text-align: center;">Cellphone</th>
+                            <th scope="col" style="text-align: center;">Extension</th>
+                            <th scope="col" style="text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contacto in contactos %}
+                            <tr class="">
+                                <td scope="row" style="text-align: center;">{{contacto.id}}</td>
+                                <td style="text-align: center;">{{contacto.name}}</td>
+                                <td style="text-align: center;">{{contacto.cargo}}</td>
+                                <td style="text-align: center;">{{contacto.email}}</td>
+                                <td style="text-align: center;">{{contacto.telephone}}</td>
+                                <td style="text-align: center;">{{contacto.cellphone}} bs</td>
+                                <td style="text-align: center;">{{contacto.extension}} bs</td>
+                                <td style="text-align: center;">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          <box-icon name='menu'></box-icon>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:contacto_update' contacto.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                          <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:contacto_delete' contacto.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+
+                                        </ul>
+                                      </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                
+                    </table>
+
+
+<!-- 
                 {% for contacto in contactos %}
                 <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
                     <h2>Contacto del cliente {{cliente.nombre}} {{cliente.id}}</h2>
@@ -24,13 +72,13 @@ class="container-sm mt-5"
                     <a class="btn btn-primary" role="button" href="{% url 'cliente:contacto_delete' contacto.id %}">Borrar</a>
                 </li>
                  
-                {% endfor %}
+                {% endfor %} -->
                 
                
          
             
             </div>
-        </ul>
+        
 </div>
 </div>
 {% endblock %}

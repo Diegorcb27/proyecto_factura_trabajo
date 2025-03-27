@@ -9,19 +9,83 @@
     <div
         class="row justify-content-center align-items-center g-2"
     >
+    
         
-            <ul class="list-group">
+            <!-- <ul class="list-group"> -->
                 <div class="col ">
+                  <a href="{% url 'facturas:facturas_create' %}"><button type="button" class="btn btn-primary mb-3">  
+                    <i class="bi bi-plus"></i> Crear factura
+                  </button></a>
                     {% if request.user.is_authenticated %}
-                        {% for factura in factura_list %}
+                        <table>
+                          <div
+                            class="table-responsive"
+                          >
+                      
+                            <table
+                              class="table table-hover"
+                            >
+                            
+                              <thead>
+                                <tr>
+                                  <th scope="col" >#</th>
+                                  <th scope="col" style="text-align: center;">Cliente</th>
+                                  <th scope="col" style="text-align: center;">Nro factura</th>
+                                  <th scope="col" style="text-align: center;">Telefono</th>
+                                  <th scope="col" style="text-align: center;">I.V.A</th>
+                                  <th scope="col" style="text-align: center;">Importe</th>
+                                  <th scope="col" style="text-align: center;">Acción</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for factura in factura_list %}
+                                <tr class="">
+                                  <td scope="row" style="text-align: center;">{{factura.id}}</td>
+                                  <td style="text-align: center;">{{factura.cliente}}</td>
+                                  <td style="text-align: center;">{{factura.numero_factura}}</td>
+                                  <td style="text-align: center;">{{factura.telefono}}</td>
+                                  <td style="text-align: center;">{{factura.iva}}</td>
+                                  <td style="text-align: center;">{{factura.calcular_total_con_iva}} bs</td>
+                                  <td style="text-align: center;">
+                                    <div class="dropdown">
+                                      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <box-icon name='menu'></box-icon>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li style="text-align: center;"><button class="btn btn-outline-warning px-1 mx-2 my-2"><a href="generate_pdf/{{factura.id}}"><box-icon type='solid' name='file-pdf'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-success px-1 mx-2 my-2"><a href="reporte/{{factura.id}}"><box-icon type='solid' name='file-import'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a href="{% url 'facturas:facturas_update' factura.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'facturas:facturas_delete' factura.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-info px-1 mx-2 my-2"><a href="{% url 'facturas:facturas_detail' factura.id %}"><box-icon name='spreadsheet'></box-icon></a></button></li>
+                                      </ul>
+                                    </div>
+                                    
+                                    
+                                    
+                                    
+                                  </td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            
+                            </table>
+                          </div>
+                          
+                        </table>
+                        
+                        {% comment %}
                         <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-                            Factura de {{factura.cliente}}
-                            <p><b>{{factura.total}}</b></p>
-                            <p><a href="{% url 'facturas:facturas_detail' factura.id %}">Leer mas</a></p>
-                            <a href="generate_pdf/{{factura.id}}"><button type="button" class="btn btn-warning me-3" data-bs-dismiss="modal">generar PDF</button></a>
-                            <a href="reporte/{{factura.id}}"><button type="button" class="btn btn-success" data-bs-dismiss="modal">generar excel</button></a>
+                          Factura {{factura.numero_factura}} {{factura.cliente}}
+                          <p><b>{{factura.total}}</b></p>
+                          <p><a href="{% url 'facturas:facturas_detail' factura.id %}">Leer mas</a></p>
+                          <a href="generate_pdf/{{factura.id}}"><button type="button" class="btn btn-warning me-3" data-bs-dismiss="modal">generar PDF</button></a>
+                          <a href="reporte/{{factura.id}}"><button type="button" class="btn btn-success" data-bs-dismiss="modal">generar excel</button></a>
                         </li>
-                        {% endfor %}
+                        {% endcomment %}
+                        
+                      
+                    
+                       
                     {% else %}
                     <div class="container">
                         <div style="padding-top:50px; text-align:center;">

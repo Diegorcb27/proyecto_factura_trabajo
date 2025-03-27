@@ -33,10 +33,10 @@ class ContactoForm(forms.ModelForm):
     
       class Meta: 
           model = Contacto
-          fields = ['cargo', 'name', 'telephone', 'cellphone', 'extension', "email"]  
+          fields = ['name', 'cargo', 'telephone', 'cellphone', 'extension', "email"]  
           widgets = {
-            "cargo": forms.TextInput(attrs={"class": "form-control"}),
             "name": forms.TextInput(attrs={"class": "form-control"}),
+            "cargo": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "telephone": forms.TextInput(attrs={"class": "form-control"}),
             "cellphone": forms.TextInput(attrs={"class": "form-control"}),
@@ -46,8 +46,8 @@ class ContactoForm(forms.ModelForm):
     #   esto es para cambiar como se veran la labels en el proyecto
       
           labels = {
-    'cargo': 'R.I.F',
     'name': 'Nombre',
+    'cargo': 'Cargo',
     'email': 'Email',
     'telephone': 'Telefono',
     'cellphone': 'Celular',

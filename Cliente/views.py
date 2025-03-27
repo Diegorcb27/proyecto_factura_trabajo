@@ -30,8 +30,10 @@ class ClienteListView(ListView):
 @method_decorator(login_required, name='dispatch') 
 class ClienteUpdateView(UpdateView):
     model = Cliente
-    fields = ["nombre", "email"]
+    # fields = ["rif", "nombre", "email", "telefono_1", "telefono_2", "num_empleados"]
+    form_class=ClienteForm
     template_name_suffix = "_update_form"
+    
     
     def get_success_url(self):
       
@@ -41,7 +43,7 @@ class ClienteUpdateView(UpdateView):
 @method_decorator(login_required, name='dispatch') 
 class ClienteDeleteView(DeleteView):
     model = Cliente
-    success_url = reverse_lazy('facturas:facturas_list')
+    success_url = reverse_lazy('cliente:cliente_list')
     
 # CRUD CONTACTO
 @method_decorator(login_required, name='dispatch') 
@@ -70,7 +72,8 @@ class ContactoCreateView(CreateView):
 @method_decorator(login_required, name='dispatch') 
 class ContactoUpdateView(UpdateView):
     model = Contacto
-    fields = ["name", "cargo", "telephone", "cellphone", "extension", "email"]
+    # fields = ["name", "cargo", "telephone", "cellphone", "extension", "email"]
+    form_class=ContactoForm
     template_name_suffix = "_update_form"
     
     def get_success_url(self):
@@ -93,6 +96,7 @@ def facturas_por_cliente(request, cliente_id):
    facturas = Factura.objects.filter(cliente=cliente)
    return render(request, 'facturas_por_cliente.html', {'cliente': cliente, 'facturas': facturas})
 
+#Filtro el contacto por cliente
 @login_required
 def contacto_por_cliente(request, cliente_id):
    cliente = get_object_or_404(Cliente, id=cliente_id)

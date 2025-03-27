@@ -10,14 +10,62 @@
         class="row justify-content-center align-items-center g-2"
     >
         
-            <ul class="list-group">
+            
                 <div class="col ">
 
                     <a href="{% url 'cliente:cliente_create' %}"><button type="button" class="btn btn-primary mb-3">  
-                        <i class="bi bi-plus"></i> Agregar  nuevo cliente
+                        <i class="bi bi-plus"></i> Agregar cliente
                       </button></a>
 
+                      <table
+                      class="table table-hover"
+                    >
+                    
+                      <thead>
+                        <tr>
+                          <th scope="col" >#</th>
+                          <th scope="col" style="text-align: center;">Cliente</th>
+                          <th scope="col" style="text-align: center;">Rif cliente</th>
+                          <th scope="col" style="text-align: center;">Email</th>
+                          <th scope="col" style="text-align: center;">Telefono 1</th>
+                          <th scope="col" style="text-align: center;">Telefono 2</th>
+                          <th scope="col" style="text-align: center;">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
                         {% for cliente in cliente_list %}
+                        <tr class="">
+                          <td scope="row" style="text-align: center;">{{cliente.id}}</td>
+                          <td style="text-align: center;">{{cliente.nombre}}</td>
+                          <td style="text-align: center;">{{cliente.rif}}</td>
+                          <td style="text-align: center;">{{cliente.email}}</td>
+                          <td style="text-align: center;">{{cliente.telefono_1}}</td>
+                          <td style="text-align: center;">{{cliente.telefono_2}} bs</td>
+                          <td style="text-align: center;">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  <box-icon name='menu'></box-icon>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:cliente_update' cliente.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                  <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:cliente_delete' cliente.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+                                  <li style="text-align: center;"><button class="btn btn-outline-info px-1 mx-2 my-2"><a href="{% url 'cliente:contacto_por_cliente' cliente.id %}"><box-icon type='solid' name='contact'></box-icon></a></button></li>
+                                </ul>
+                              </div>
+                          </td>
+                        
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    
+                    </table>
+                </div>
+                  
+                </table>
+
+                 
+                             
+                        <!-- {% for cliente in cliente_list %}
                         <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
             
                             <p><b>{{cliente.nombre}}</b></p>
@@ -27,21 +75,23 @@
                             <p><b>Telefono 2:</b>  {{cliente.telefono_2}}</p>
                             <p><b>Fecha de contrato:</b>  {{cliente.fecha_contrato}}</p>
                             <p><b>Número de empleados:</b>  {{cliente.num_empleados}}</p>
-                            <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:facturas_por_cliente' cliente.id %}">facturas</a>
-                            <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:contacto_create' cliente.id %}">Agregar contacto</a>
-                            <a class="btn btn-primary me-3 mt-3" role="button" href="{% url 'cliente:contacto_por_cliente' cliente.id %}">contactos </a>
+                            <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:cliente_update' cliente.id %}">Editar</a>
+                            <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:cliente_delete' cliente.id %}">Borrar</a>
+                            <a class="btn btn-primary me-3 mt-3" role="button" href="{% url 'cliente:contacto_por_cliente' cliente.id %}">Contactos </a>
+                            <a class="btn btn-primary me-3  mt-3" role="button" href="{% url 'cliente:facturas_por_cliente' cliente.id %}">Facturas</a>
+                           
                             
                            
                         </li>
-                        {% endfor %}
-                </div>
-                
-            </ul>
-        
-        
+                        {% endfor %} -->
     </div>
-    
+                
+            
+        
+        
 </div>
+    
+
 
 
 
