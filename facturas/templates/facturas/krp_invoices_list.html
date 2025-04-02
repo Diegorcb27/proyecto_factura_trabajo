@@ -29,11 +29,10 @@
                               <thead>
                                 <tr>
                                   <th scope="col" >#</th>
-                                  <th scope="col" style="text-align: center;">Cliente</th>
                                   <th scope="col" style="text-align: center;">Nro factura</th>
-                                  <th scope="col" style="text-align: center;">Telefono</th>
-                                  <th scope="col" style="text-align: center;">I.V.A</th>
-                                  <th scope="col" style="text-align: center;">Importe</th>
+                                  <th scope="col" style="text-align: center;">Nro control</th>
+                                  <th scope="col" style="text-align: center;">Descuento</th>
+                                  <th scope="col" style="text-align: center;">Moneda</th>
                                   <th scope="col" style="text-align: center;">Acción</th>
                                 </tr>
                               </thead>
@@ -41,11 +40,10 @@
                                 {% for factura in factura_list %}
                                 <tr class="">
                                   <td scope="row" style="text-align: center;">{{factura.id}}</td>
-                                  <td style="text-align: center;">{{factura.cliente}}</td>
-                                  <td style="text-align: center;">{{factura.numero_factura}}</td>
-                                  <td style="text-align: center;">{{factura.telefono}}</td>
-                                  <td style="text-align: center;">{{factura.iva}}</td>
-                                  <td style="text-align: center;">{{factura.calcular_total_con_iva}} bs</td>
+                                  <td style="text-align: center;">{{factura.invoice_n}}</td>
+                                  <td style="text-align: center;">{{factura.invoice_c}}</td>
+                                  <td style="text-align: center;">{{factura.discount}}</td>
+                                  <td style="text-align: center;">{{factura.currency_id}}</td>
                                   <td style="text-align: center;">
                                     <div class="dropdown">
                                       <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

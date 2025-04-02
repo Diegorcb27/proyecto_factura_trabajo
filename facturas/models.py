@@ -1,6 +1,6 @@
 from django.db import models
 # from django.contrib.auth.models import User
-from Cliente.models import Cliente
+from Cliente.models import krp_partners
 
 
 # Create your models here.
@@ -8,41 +8,40 @@ from Cliente.models import Cliente
 
 
 
-class Factura(models.Model):
-    IVA_CHOICES = [
-        (8, '8%'),
-        (12, '12%'),
-        (16, '16%'),
-    ]
-
+class krp_invoices(models.Model):
     # usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    numero_factura = models.CharField(max_length=20, unique=True)
-    fecha = models.DateTimeField(auto_now_add=True)
-    rif = models.CharField(max_length=12, unique=True, default='J-')
-    domicilio_fiscal = models.TextField(default="Sin domicilio")  # Define un valor predeterminado
-    telefono = models.CharField(max_length=15, default='default_value')
-    descripcion = models.TextField()
-    forma_pago = models.TextField()
-    importe = models.DecimalField(max_digits=10, decimal_places=2)
-    iva = models.IntegerField(choices=IVA_CHOICES, default=16)
+    partner_id = models.ForeignKey(krp_partners, on_delete=models.CASCADE)
+    invoice_n = models.CharField(max_length=20, unique=True)
+    invoice_d = models.DateTimeField(auto_now_add=True)
+    invoice_c = models.CharField(max_length=7)  # Código de factura
+    discount = models.DecimalField(max_digits=15, decimal_places=2, default=0)  # Descuento predeterminado como 0
+    currency_id = models.CharField(max_length=4, blank=True, null=True)  # Identificador de moneda (opcional)
+    pub_note = models.CharField(max_length=255, blank=True, null=True)  # Nota pública (opcional)
+    pri_note = models.CharField(max_length=255, blank=True, null=True)  # Nota privada (opcional)
 
-    def calcular_total_con_iva(self):
-        return self.importe + (self.importe * self.iva / 100)
+    
+    
+class  krp_invoice_transactions(models.Model):
+    invoice_id = models.ForeignKey(krp_invoices, on_delete=models.CASCADE)  # Relación con una factura (idealmente ForeignKey en un modelo más complejo)
+    product_id = models.BigIntegerField()  # Relación con un producto
+    price = models.DecimalField(max_digits=15, decimal_places=2)  # Precio con precisión decimal
+    qty = models.PositiveIntegerField()  # Cantidad numérica positiva
+    amount = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)  # Puede ser opcional
+    vat_rate = models.DecimalField(max_digits=5, decimal_places=2)  # Tasa de IVA
+    currency_id = models.CharField(max_length=4)  # Identificador de moneda
+    curr_rate = models.DecimalField(max_digits=9, decimal_places=5, default=0)  # Tasa de cambio con valor por defecto
+    note = models.CharField(max_length=255, blank=True, null=True)  # Nota opcional
 
-    def save(self, *args, **kwargs):
-        self.control()  # Aquí se llama al método control
-        super(Factura, self).save(*args, **kwargs)
-
-    def control(self):
-        if not self.numero_factura:
-            last_invoice = Factura.objects.all().order_by('id').last()
-            if last_invoice:
-                last_number = int(last_invoice.numero_factura)
-                new_number = last_number + 1
-            else:
-                new_number = 1
-            self.numero_factura = f"{new_number:06d}"
+    def calcular_total(self):
+        """
+        Calcula el total basado en el precio, cantidad y tasa de IVA.
+        """
+        total_sin_iva = self.price * self.qty
+        total_con_iva = total_sin_iva + (total_sin_iva * self.vat_rate / 100)
+        return total_con_iva
 
     def __str__(self):
-        return f'Factura {self.numero_factura} - {self.cliente}'
+        """
+        Devuelve una representación en cadena de la transacción.
+        """
+        return f'Transacción de Factura ID {self.invoice_id}'

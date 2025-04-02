@@ -3,33 +3,41 @@ from django.shortcuts import get_object_or_404
 
 # Create your models here.
 
-class Cliente(models.Model):
+class krp_partners(models.Model):
     id = models.AutoField(primary_key=True)
-    rif= models.CharField(max_length=12, unique=True, default='J-')
-    nombre = models.CharField(max_length=100)
-    email = models.EmailField()
-    telefono_1= models.CharField(max_length=15, default='default_value')
-    telefono_2 = models.CharField(max_length=15, default='default_value')
-    fecha_contrato=models.DateField(auto_now=True)
-    num_empleados = models.IntegerField(default=0)
-    
-    
-
-    def __str__(self):
-        return self.nombre
-    
-class Contacto(models.Model):
-    id = models.AutoField(primary_key=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='contactos')
-    cargo = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
-    telephone = models.CharField(max_length=15, default='default_value')
-    cellphone = models.CharField(max_length=15, default='default_value')
-    extension = models.CharField(max_length=10, blank=True, null=True)
+    tin= models.CharField(max_length=12, unique=True, default='J-')
+    partner_type=models.CharField(max_length=24)
+    is_tax_exempt = models.IntegerField(choices=((0, 'False'), (1, 'True')), default=0)
+    economy_sector=models.CharField(max_length=24)
+    website=models.CharField(max_length=64)
     email = models.EmailField()
+    contract_d=models.DateField(auto_now=True)
+    empl_size = models.IntegerField(default=0)
+    phone1= models.CharField(max_length=15, default='default_value')
+    phone2 = models.CharField(max_length=15, default='default_value')
+    pub_note = models.CharField(max_length=255)   
+    pri_note = models.CharField(max_length=255)   
     
     def __str__(self):
-        return f" {self.name} con ID: ({self.id})"
+        return self.name
+    
+class krp_partner_contacts(models.Model): 
+    id = models.AutoField(primary_key=True)
+    partner_id = models.ForeignKey(krp_partners, on_delete=models.CASCADE, related_name='contactos')
+    firstname = models.CharField(max_length=17)
+    middlename = models.CharField(max_length=15)
+    lastname1 = models.CharField(max_length=17)
+    lastname2 = models.CharField(max_length=15)
+    position = models.CharField(max_length=64)
+    phone = models.CharField(max_length=15, default='default_value')
+    phone_ext = models.CharField(max_length=6, blank=True, null=True)
+    mobile = models.CharField(max_length=10, blank=True, null=True)
+    email = models.EmailField()
+    in_invoice = models.IntegerField(choices=((0, 'False'), (1, 'True')), default=0)
+    
+    def __str__(self):
+        return f" {self.firstname} con ID: ({self.id})"
     
 
 

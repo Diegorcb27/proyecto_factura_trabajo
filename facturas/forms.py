@@ -1,13 +1,13 @@
 from django import forms
-from .models import Factura
+from .models import krp_invoices
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib import admin
 
-class FacturaForm(forms.ModelForm):
+class krp_invoices_Form(forms.ModelForm):
     
     class Meta: 
-        model = Factura
-        fields = ['cliente', 'rif', 'domicilio_fiscal', 'telefono', 'descripcion', 'forma_pago', 'importe', 'iva']  
+        model = krp_invoices
+        fields = ['partner_id', 'invoice_n', 'invoice_c', 'discount', 'currency_id', 'pub_note', 'pri_note']  
         widgets = {
             # 'cliente': AutocompleteSelect(
             #   Factura._meta.get_field('cliente').remote_field,
@@ -15,27 +15,27 @@ class FacturaForm(forms.ModelForm):
             #   attrs={'placeholder': 'seleccionar...'},
                 
             # ),
-            'descripcion': forms.Textarea(attrs={'class':'form-control'}),
-            'importe': forms.NumberInput(attrs={'class':'form-control',  'placeholder':'importe'}),
+            'invoice_n': forms.TextInput(attrs={'class':'form-control'}),
+            'invoice_c': forms.TextInput(attrs={'class':'form-control'}),
+            'discount': forms.NumberInput(attrs={'class':'form-control',  'placeholder':'descuento'}),
             # 'numero_factura': forms.NumberInput(attrs={'class':'form-control',  'placeholder':'Numero de control'}),
-            'rif': forms.TextInput(attrs={'class':'form-control',  'placeholder':'rif'}),
-            'domicilio_fiscal': forms.Textarea(attrs={'class':'form-control',  'placeholder':'Domicilio'}),
-            'telefono': forms.NumberInput(attrs={'class':'form-control',  'placeholder':'telefono'}),
-            'forma_pago': forms.Textarea(attrs={'class':'form-control',  'placeholder':'forma de pago'}),
-            'iva': forms.Select(attrs={'class':'form-control',  'placeholder':'I.V.A'}),
+            'currency_id': forms.TextInput(attrs={'class':'form-control',  'placeholder':'tipo de moneda'}),
+            'pub_note': forms.Textarea(attrs={'class':'form-control',  'placeholder':'Nota pública'}),
+            'pri_note': forms.Textarea(attrs={'class':'form-control',  'placeholder':'Nota privada'}),
+           
            
             
             
         }
-    labels = {
-    'cliente': 'Cliente',
-    'descripcion': 'Descripción',
-    'importe': 'Importe',
-    'iva': 'IVA',
-    # 'numero_factura': 'Número de Control',
-    'rif': 'R.I.F',
-    'domicilio_fiscal': 'Domicilio Fiscal',
-    'telefono': 'Teléfono',
-    'forma_pago': 'Forma de Pago',
-  
-}
+        labels = {
+        'partner_id': 'Cliente',
+        'invoice_n': 'Numero de factura',
+        'invoice_c': 'Número de control',
+        'discount': 'Descuento',
+        # 'numero_factura': 'Número de Control',
+        'currency_id': 'Identificador de moneda',
+        'pub_note': 'Nota pública',
+        'pri_note': 'Nota privada',
+        
+    
+        }

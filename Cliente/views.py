@@ -1,18 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from .models import Cliente, Contacto
+from .models import krp_partners, krp_partner_contacts
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required 
-from facturas.models import Factura
+from facturas.models import krp_invoices
 from .forms import ClienteForm, ContactoForm
 
 # Create your views here.
 
 @method_decorator(login_required, name='dispatch') 
 class ClienteCreateView(CreateView):
-    model = Cliente
+    model = krp_partners
     # fields = ["nombre", "rif", "telefono_1", "telefono_2", "email", "num_empleados"]
     form_class=ClienteForm
     
@@ -23,13 +23,13 @@ class ClienteCreateView(CreateView):
 
 @method_decorator(login_required, name='dispatch') 
 class ClienteListView(ListView):
-    model=Cliente
+    model=krp_partners
     context_object_name = 'cliente_list'
     template_name = 'cliente_list.html'
     
 @method_decorator(login_required, name='dispatch') 
 class ClienteUpdateView(UpdateView):
-    model = Cliente
+    model = krp_partners
     # fields = ["rif", "nombre", "email", "telefono_1", "telefono_2", "num_empleados"]
     form_class=ClienteForm
     template_name_suffix = "_update_form"
@@ -42,13 +42,13 @@ class ClienteUpdateView(UpdateView):
     
 @method_decorator(login_required, name='dispatch') 
 class ClienteDeleteView(DeleteView):
-    model = Cliente
+    model = krp_partners
     success_url = reverse_lazy('cliente:cliente_list')
     
 # CRUD CONTACTO
 @method_decorator(login_required, name='dispatch') 
 class ContactoCreateView(CreateView):
-    model = Contacto
+    model = krp_partner_contacts
     form_class=ContactoForm
     
     def get_success_url(self):
@@ -56,9 +56,8 @@ class ContactoCreateView(CreateView):
         return reverse_lazy('cliente:cliente_list')
     
     def form_valid(self, form):
-        cliente_id = self.kwargs.get('cliente_id')
-        cliente = get_object_or_404(Cliente, pk=cliente_id)
-        form.instance.cliente = cliente  # Establece el cliente
+        partner = get_object_or_404(krp_partners, pk=self.kwargs['cliente_id'])  # Obtén el objeto relacionado
+        form.instance.partner_id = partner  # Asocia el `partner_id` al formulario
         return super().form_valid(form)
     
 
@@ -71,7 +70,7 @@ class ContactoCreateView(CreateView):
     
 @method_decorator(login_required, name='dispatch') 
 class ContactoUpdateView(UpdateView):
-    model = Contacto
+    model = krp_partner_contacts
     # fields = ["name", "cargo", "telephone", "cellphone", "extension", "email"]
     form_class=ContactoForm
     template_name_suffix = "_update_form"
@@ -83,7 +82,7 @@ class ContactoUpdateView(UpdateView):
     
 @method_decorator(login_required, name='dispatch') 
 class ContactoDeleteView(DeleteView):
-    model = Contacto
+    model =  krp_partner_contacts
     success_url = reverse_lazy('cliente:cliente_list')
     
     
@@ -92,27 +91,27 @@ class ContactoDeleteView(DeleteView):
 
 @login_required
 def facturas_por_cliente(request, cliente_id):
-   cliente = get_object_or_404(Cliente, id=cliente_id)
-   facturas = Factura.objects.filter(cliente=cliente)
+   cliente = get_object_or_404(krp_partners, id=cliente_id)
+   facturas = krp_invoices.objects.filter(partner_id=cliente)
    return render(request, 'facturas_por_cliente.html', {'cliente': cliente, 'facturas': facturas})
 
 #Filtro el contacto por cliente
 @login_required
 def contacto_por_cliente(request, cliente_id):
-   cliente = get_object_or_404(Cliente, id=cliente_id)
-   contactos = Contacto.objects.filter(cliente=cliente)
+   cliente = get_object_or_404(krp_partners, id=cliente_id)
+   contactos = krp_partner_contacts.objects.filter(partner_id=cliente)
    return render(request, 'cliente/contacto_por_cliente.html', {'cliente': cliente, 'contactos': contactos})
 
 
 from django.http import HttpResponse
 from django.template.loader import get_template
 from weasyprint import HTML
-from facturas.models import Factura
+from facturas.models import krp_invoices
 from django.views.generic.list import ListView
 
 def generate_pdf(request, cliente_id,  pk):
 
-        factura = Factura.objects.get(pk=pk)
+        factura = krp_invoices.objects.get(pk=pk)
         template = get_template('facturas/factura_detail_pdf.html')
         context = {
             "cliente": factura.cliente,

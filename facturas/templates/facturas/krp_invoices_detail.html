@@ -4,20 +4,16 @@
 <div class="container">
   <div class="row d-flex justify-content-center align-items-center g-2">
     <div class="col">
-      <h2>Factura de {{factura.cliente}}</h2>
+      <h2>Factura de {{krp_invoices.partner_id}}</h2>
       <div>
         <h1>Detalle de la Factura</h1>
-        <p><strong>Cliente:</strong> {{ factura.cliente }}</p>
-        <p><strong>Número de factura:</strong> {{ factura.numero_factura }}</p>
-        <p><strong>Fecha:</strong> {{ factura.fecha }}</p>
-        <p><strong>RIF:</strong> {{ factura.rif }}</p>
-        <p><strong>Domicilio Fiscal:</strong> {{ factura.domicilio_fiscal }}</p>
-        <p><strong>Teléfono:</strong> {{ factura.telefono }}</p>
-        <p><strong>Descripción:</strong> {{ factura.descripcion }}</p>
-        <p><strong>Forma de Pago:</strong> {{ factura.forma_pago }}</p>
-        <p><strong>Base imponible:</strong> {{ factura.importe }}</p>
-        <p><strong>IVA:</strong> {{ factura.iva }}</p>
-        <p><b>Total con IVA:</b>  {{ factura.calcular_total_con_iva }}</p>
+        <p><strong>Cliente:</strong> {{ krp_invoices.partner_id }}</p>
+        <p><strong>Número de factura:</strong> {{ krp_invoices.invoice_n }}</p>
+        <p><strong>Número de control:</strong> {{ krp_invoices.invoice_c }}</p>
+        <p><strong>Descuento:</strong> {{ krp_invoices.discount }}</p>
+        <p><strong>Tipo de moneda:</strong> {{ krp_invoices.currency_id }}</p>
+        <p><strong>Nota pública:</strong> {{ krp_invoices.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ krp_invoices.pri_note }}</p>
         {% if request.user.is_authenticated %}  
         <button
           type="button"
@@ -56,17 +52,13 @@
         ></button>
       </div>
       <div class="modal-body">
-        <p><strong>Cliente:</strong> {{ factura.cliente }}</p>
-        <p><strong>Número de Control:</strong> {{ factura.numero_factura }}</p>
-        <p><strong>Fecha:</strong> {{ factura.fecha }}</p>
-        <p><strong>RIF:</strong> {{ factura.rif }}</p>
-        <p><strong>Domicilio Fiscal:</strong> {{ factura.domicilio_fiscal }}</p>
-        <p><strong>Teléfono:</strong> {{ factura.telefono }}</p>
-        <p><strong>Descripción:</strong> {{ factura.descripcion }}</p>
-        <p><strong>Forma de Pago:</strong> {{ factura.forma_pago }}</p>
-        <p><strong>Importe:</strong> {{ factura.importe }}</p>
-        <p><strong>IVA:</strong> {{ factura.iva }}</p>
-        <p><b>Total con IVA:</b> {{ factura.calcular_total_con_iva }}</p>
+        <p><strong>Cliente:</strong> {{ krp_invoices.partner_id }}</p>
+        <p><strong>Número de factura:</strong> {{ krp_invoices.invoice_n }}</p>
+        <p><strong>Número de control:</strong> {{ krp_invoices.invoice_c }}</p>
+        <p><strong>Descuento:</strong> {{ krp_invoices.discount }}</p>
+        <p><strong>Tipo de moneda:</strong> {{ krp_invoices.currency_id }}</p>
+        <p><strong>Nota pública:</strong> {{ krp_invoices.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ krp_invoices.pri_note }}</p>
         <!-- Añade más detalles aquí según sea necesario -->
       </div>
       <div class="modal-footer">

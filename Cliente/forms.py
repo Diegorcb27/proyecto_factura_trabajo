@@ -1,30 +1,42 @@
 from django import forms
-from .models import Cliente, Contacto
+from .models import krp_partners, krp_partner_contacts
 
 class ClienteForm(forms.ModelForm):
     
       class Meta: 
-          model = Cliente
-          fields = ['rif', 'nombre', 'email', 'telefono_1', 'telefono_2', 'num_empleados']  
+          model = krp_partners
+          fields = ['tin', 'name', 'email', 'partner_type', 'is_tax_exempt', 'economy_sector', 'website', 'phone1', 'phone2', 'empl_size', 'pub_note', 'pri_note']  
           widgets = {
-            "rif": forms.TextInput(attrs={"class": "form-control"}),
-            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+            "tin": forms.TextInput(attrs={"class": "form-control"}),
+            "name": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
-            "telefono_1": forms.TextInput(attrs={"class": "form-control"}),
-            "telefono_2": forms.TextInput(attrs={"class": "form-control"}),
-            "num_empleados": forms.NumberInput(attrs={"class": "form-control"})
+            "partner_type": forms.TextInput(attrs={"class": "form-control"}),
+            "is_tax_exempt": forms.TextInput(attrs={"class": "form-control"}),
+            "economy_sector": forms.TextInput(attrs={"class": "form-control"}),
+            "website": forms.TextInput(attrs={"class": "form-control"}),
+            "phone1": forms.TextInput(attrs={"class": "form-control"}),
+            "phone2": forms.TextInput(attrs={"class": "form-control"}),
+            "pub_note": forms.Textarea(attrs={"class": "form-control"}),
+            "pri_note": forms.Textarea(attrs={"class": "form-control"}),
+            "empl_size": forms.NumberInput(attrs={"class": "form-control"})
               
           }
     #   esto es para cambiar como se veran la labels en el proyecto
       
           labels = {
-    'rif': 'R.I.F',
-    'nombre': 'Nombre',
+    'tin': 'R.I.F',
+    'name': 'Nombre',
     'email': 'Email',
-    'telefono_1': 'Telefono 1',
+    'partner_type': 'Tipo de cliente',
+    'is_tax_exempt': 'Exempto de impuesto',
+    'economy_sector': 'Sector economico',
+    'website': 'Pagina Web',
+    'phone1': 'Telefono 1',
     # 'numero_factura': 'Número de Control',
-    'telefono_2': 'Telefono 2',
-    'num_empleados': 'Numero de empleados',
+    'phone2': 'Telefono 2',
+    'pub_note': 'Nota pública',
+    'pri_note': 'Nota privada',
+    'empl_size': 'Numero de empleados',
   
 }
           
@@ -32,25 +44,35 @@ class ClienteForm(forms.ModelForm):
 class ContactoForm(forms.ModelForm):
     
       class Meta: 
-          model = Contacto
-          fields = ['name', 'cargo', 'telephone', 'cellphone', 'extension', "email"]  
+          model = krp_partner_contacts
+          fields = ['partner_id', 'firstname', 'middlename', 'lastname1', 'lastname2', 'position', 'phone', 'phone_ext', 'mobile', 'email', 'in_invoice']  
           widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control"}),
-            "cargo": forms.TextInput(attrs={"class": "form-control"}),
+            "firstname": forms.TextInput(attrs={"class": "form-control"}),
+            "middlename": forms.TextInput(attrs={"class": "form-control"}),
+            "lastname1": forms.TextInput(attrs={"class": "form-control"}),
+            "lastname2": forms.TextInput(attrs={"class": "form-control"}),
+            "position": forms.TextInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "phone_ext": forms.TextInput(attrs={"class": "form-control"}),
+            "mobile": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
-            "telephone": forms.TextInput(attrs={"class": "form-control"}),
-            "cellphone": forms.TextInput(attrs={"class": "form-control"}),
-            "extension": forms.NumberInput(attrs={"class": "form-control"})
+            "in_invoice": forms.TextInput(attrs={"class": "form-control"}),
+            
               
           }
     #   esto es para cambiar como se veran la labels en el proyecto
       
           labels = {
-    'name': 'Nombre',
-    'cargo': 'Cargo',
+    'partner_id': 'Cliente',
+    'firstname': 'Primer nombre',
+    'middlename': 'Segundo nombre',
+    'lastname1': 'Primer apellido',
+    'lastname2': 'Segundo apellido',
+    'position': 'Cargo',
+    'phone': 'Telefono',
+    'phone_ext': 'Extension',
+    'mobile': 'Celular',
     'email': 'Email',
-    'telephone': 'Telefono',
-    'cellphone': 'Celular',
-    'extension': 'Extension',
+    'in_invoice': 'Facturar',
   
 }

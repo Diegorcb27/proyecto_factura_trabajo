@@ -18,12 +18,16 @@ class="container-sm mt-5"
                         <thead>
                             <tr>
                             <th scope="col" >#</th>
-                            <th scope="col" style="text-align: center;">Contacto</th>
+                            <th scope="col" style="text-align: center;">Pimer nombre</th>
+                            <th scope="col" style="text-align: center;">Segundo nombre</th>
+                            <th scope="col" style="text-align: center;">Primer apellido</th>
+                            <th scope="col" style="text-align: center;">Segundo apellido</th>
                             <th scope="col" style="text-align: center;">Cargo</th>
-                            <th scope="col" style="text-align: center;">Email</th>
                             <th scope="col" style="text-align: center;">Telefono</th>
-                            <th scope="col" style="text-align: center;">Cellphone</th>
                             <th scope="col" style="text-align: center;">Extension</th>
+                            <th scope="col" style="text-align: center;">Celular</th>
+                            <th scope="col" style="text-align: center;">Email</th>
+                            <th scope="col" style="text-align: center;">Factura</th>
                             <th scope="col" style="text-align: center;">Acción</th>
                             </tr>
                         </thead>
@@ -31,12 +35,16 @@ class="container-sm mt-5"
                             {% for contacto in contactos %}
                             <tr class="">
                                 <td scope="row" style="text-align: center;">{{contacto.id}}</td>
-                                <td style="text-align: center;">{{contacto.name}}</td>
-                                <td style="text-align: center;">{{contacto.cargo}}</td>
-                                <td style="text-align: center;">{{contacto.email}}</td>
-                                <td style="text-align: center;">{{contacto.telephone}}</td>
-                                <td style="text-align: center;">{{contacto.cellphone}} bs</td>
-                                <td style="text-align: center;">{{contacto.extension}} bs</td>
+                                <td style="text-align: center;">{{contacto.firstname}}</td>
+                                <td style="text-align: center;">{{contacto.middlename}}</td>
+                                <td style="text-align: center;">{{contacto.lastname1}}</td>
+                                <td style="text-align: center;">{{contacto.lastname2}}</td>
+                                <td style="text-align: center;">{{contacto.position}}</td>
+                                <td style="text-align: center;">{{contacto.phone}}</td>
+                                <td style="text-align: center;">{{contacto.phone_ext}}</td>
+                                <td style="text-align: center;">{{contacto.mobile}} </td>
+                                <td style="text-align: center;">{{contacto.email}} </td>
+                                <td style="text-align: center;">{{contacto.in_voice}}</td>
                                 <td style="text-align: center;">
                                     <div class="dropdown">
                                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
