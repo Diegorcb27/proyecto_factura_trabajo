@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from .models import krp_partners, krp_partner_contacts
+from django.views.generic.detail import DetailView
+from django.utils import timezone
+from .models import krp_partners, krp_partner_contacts, krp_partner_address
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required 
@@ -44,6 +46,49 @@ class ClienteUpdateView(UpdateView):
 class ClienteDeleteView(DeleteView):
     model = krp_partners
     success_url = reverse_lazy('cliente:cliente_list')
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteDetailView(DetailView):
+    model = krp_partners
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+    
+#CRUD DIRECCION CLIENTE
+
+# Crear dirección
+class PartnerAddressCreateView(CreateView):
+    model = krp_partner_address
+    fields = ['partner_id', 'address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
+    template_name = 'partner_address_form.html'
+    success_url = reverse_lazy('partner_address_list')
+
+# Listar direcciones
+class PartnerAddressListView(ListView):
+    model = krp_partner_address
+    template_name = 'partner_address_list.html'
+    context_object_name = 'addresses'
+
+# Detalle de dirección
+class PartnerAddressDetailView(DetailView):
+    model = krp_partner_address
+    template_name = 'partner_address_detail.html'
+    context_object_name = 'address'
+
+# Actualizar dirección
+class PartnerAddressUpdateView(UpdateView):
+    model = krp_partner_address
+    fields = ['partner_id', 'address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
+    template_name = 'partner_address_form.html'
+    success_url = reverse_lazy('partner_address_list')
+
+# Eliminar dirección
+class PartnerAddressDeleteView(DeleteView):
+    model = krp_partner_address
+    template_name = 'partner_address_confirm_delete.html'
+    success_url = reverse_lazy('partner_address_list')
     
 # CRUD CONTACTO
 @method_decorator(login_required, name='dispatch') 

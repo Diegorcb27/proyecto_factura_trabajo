@@ -22,6 +22,25 @@ class krp_partners(models.Model):
     def __str__(self):
         return self.name
     
+from django.db import models
+
+class krp_partner_address(models.Model):
+    
+    partner_id = models.ForeignKey(krp_partners, on_delete=models.CASCADE, related_name='addresses')
+    address_type = models.CharField(max_length=24)  # Representa varchar(24) not null
+    address_lines = models.CharField(max_length=120, blank=True, null=True)  # Representa varchar(120)
+    ref_address = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(64)
+    country_id = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(4)
+    state_id = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(4)
+    city = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(64)
+    municipality = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(64)
+    parish = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(64)
+    postal_code = models.CharField(max_length=10, blank=True, null=True)  # Representa varchar(10)
+
+    def __str__(self):
+        return f"{self.address_type} - {self.city}, {self.state_id}"
+
+    
 class krp_partner_contacts(models.Model): 
     id = models.AutoField(primary_key=True)
     partner_id = models.ForeignKey(krp_partners, on_delete=models.CASCADE, related_name='contactos')

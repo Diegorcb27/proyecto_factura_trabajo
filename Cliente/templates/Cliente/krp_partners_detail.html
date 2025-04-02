@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %} {% block title %}Cliente detail{% endblock %}
+{%block content %}
+
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center g-2">
+    <div class="col">
+      <div>
+        <h1>Detalles del cliente</h1>
+        <p><strong>Nombre:</strong> {{ krp_partners.name }}</p>
+        <p><strong>R.I.F:</strong> {{ krp_partners.tin }}</p>
+        <p><strong>Tipo de cliente:</strong> {{ krp_partners.partner_type }}</p>
+        <p><strong>Sector económico:</strong> {{ krp_partners.economy_sector }}</p>
+        <p><strong>Pagina web:</strong> {{ krp_partners.website }}</p>
+        <p><strong>Correo electronico:</strong> {{ krp_partners.email }}</p>
+        <p><strong>Fecha de contrato:</strong> {{ krp_partners.contract_d }}</p>
+        <p><strong>Numero de empleados:</strong> {{ krp_partners.empl_size}}</p>
+        <p><strong>telefono 1:</strong> {{ krp_partners.phone1}}</p>
+        <p><strong>telefono 2:</strong> {{ krp_partners.phone2}}</p>
+        <p><strong>Nota pública:</strong> {{ krp_partners.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ krp_partners.pri_note }}</p>
+        {% if request.user.is_authenticated %}  
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#detalleFacturaModal"
+        >
+          Ver Detalles
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="detalleFacturaModal"
+  tabindex="-1"
+  aria-labelledby="detalleFacturaModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <!-- aqui cambiamos para los tipos de modales -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detalleFacturaModalLabel">
+          Detalles de la Factura {{factura.id}}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Nombre:</strong> {{ krp_partners.name }}</p>
+        <p><strong>R.I.F:</strong> {{ krp_partners.tin }}</p>
+        <p><strong>Tipo de cliente:</strong> {{ krp_partners.partner_type }}</p>
+        <p><strong>Sector económico:</strong> {{ krp_partners.economy_sector }}</p>
+        <p><strong>Pagina web:</strong> {{ krp_partners.website }}</p>
+        <p><strong>Correo electronico:</strong> {{ krp_partners.email }}</p>
+        <p><strong>Fecha de contrato:</strong> {{ krp_partners.contract_d }}</p>
+        <p><strong>Numero de empleados:</strong> {{ krp_partners.empl_size}}</p>
+        <p><strong>telefono 1:</strong> {{ krp_partners.phone1}}</p>
+        <p><strong>telefono 2:</strong> {{ krp_partners.phone2}}</p>
+        <p><strong>Nota pública:</strong> {{ krp_partners.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ krp_partners.pri_note }}</p>
+        <!-- Añade más detalles aquí según sea necesario -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

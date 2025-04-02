@@ -49,6 +49,7 @@
                                 <ul class="dropdown-menu">
                                   <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:cliente_update' cliente.id %}"><box-icon name='edit'></box-icon></a></button></li>
                                   <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:cliente_delete' cliente.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+                                  <li style="text-align: center;"><button class="btn btn-outline-info px-1 mx-2 my-2"><a href="{% url 'cliente:cliente_detail' cliente.id %}"><box-icon name='spreadsheet'></box-icon></a></button></li>
                                   <li style="text-align: center;"><button class="btn btn-outline-info px-1 mx-2 my-2"><a href="{% url 'cliente:contacto_por_cliente' cliente.id %}"><box-icon type='solid' name='contact'></box-icon></a></button></li>
                                 </ul>
                               </div>
