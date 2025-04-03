@@ -4,11 +4,13 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.utils import timezone
 from .models import krp_partners, krp_partner_contacts, krp_partner_address
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required 
 from facturas.models import krp_invoices
 from .forms import ClienteForm, ContactoForm
+from django.http import HttpResponseRedirect
+
 
 # Create your views here.
 
@@ -50,6 +52,7 @@ class ClienteDeleteView(DeleteView):
 @method_decorator(login_required, name='dispatch') 
 class ClienteDetailView(DetailView):
     model = krp_partners
+    context_object_name = 'partner' #con este atributo puedo usar este nombre para acceder al modelo de cada cliente en particular
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,34 +64,57 @@ class ClienteDetailView(DetailView):
 # Crear dirección
 class PartnerAddressCreateView(CreateView):
     model = krp_partner_address
-    fields = ['partner_id', 'address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
-    template_name = 'partner_address_form.html'
-    success_url = reverse_lazy('partner_address_list')
+    fields = ['address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
+    template_name = 'Cliente/partner_address_form.html'
+    def get_success_url(self):
+        
+        return reverse_lazy('cliente:cliente_list')
+    
+   
+    
+
 
 # Listar direcciones
 class PartnerAddressListView(ListView):
     model = krp_partner_address
-    template_name = 'partner_address_list.html'
+    template_name = 'Cliente/partner_address_list.html'
     context_object_name = 'addresses'
 
 # Detalle de dirección
 class PartnerAddressDetailView(DetailView):
     model = krp_partner_address
-    template_name = 'partner_address_detail.html'
-    context_object_name = 'address'
+    template_name = 'Cliente/partner_address_detail.html'
+    context_object_name = 'partner'
+    
+    def get_object(self):
+        # Maneja el error 404 si el objeto no se encuentra
+        return get_object_or_404(krp_partner_address, pk=self.kwargs['pk'])
+    
 
-# Actualizar dirección
 class PartnerAddressUpdateView(UpdateView):
     model = krp_partner_address
-    fields = ['partner_id', 'address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
-    template_name = 'partner_address_form.html'
-    success_url = reverse_lazy('partner_address_list')
+    fields = ['address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
+    template_name = 'Cliente/partner_address_update_form.html'
+    
+    def get_object(self):
+        return get_object_or_404(krp_partner_address, pk=self.kwargs['pk'])
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+
 
 # Eliminar dirección
 class PartnerAddressDeleteView(DeleteView):
     model = krp_partner_address
-    template_name = 'partner_address_confirm_delete.html'
-    success_url = reverse_lazy('partner_address_list')
+    template_name = 'Cliente/partner_address_confirm_delete.html'
+    def get_object(self):
+        # Usa el pk de la URL para buscar el objeto de dirección
+        return get_object_or_404(krp_partner_address, pk=self.kwargs['pk'])
+
+    def get_success_url(self):
+        # Redirige a la vista de detalle del cliente
+        return reverse('cliente:cliente_detail', kwargs={'pk': self.object.partner_id.id})
     
 # CRUD CONTACTO
 @method_decorator(login_required, name='dispatch') 
@@ -146,6 +172,17 @@ def contacto_por_cliente(request, cliente_id):
    cliente = get_object_or_404(krp_partners, id=cliente_id)
    contactos = krp_partner_contacts.objects.filter(partner_id=cliente)
    return render(request, 'cliente/contacto_por_cliente.html', {'cliente': cliente, 'contactos': contactos})
+
+@login_required
+def direccion_por_cliente(request, cliente_id):
+    # Obtener el cliente específico
+    cliente = get_object_or_404(krp_partners, id=cliente_id)
+    
+    # Obtener las direcciones asociadas al cliente
+    direcciones = krp_partner_address.objects.filter(partner_id=cliente)
+    
+    # Renderizar la plantilla con los datos
+    return render(request, 'cliente/direccion_por_cliente.html', {'cliente': cliente, 'direcciones': direcciones})
 
 
 from django.http import HttpResponse

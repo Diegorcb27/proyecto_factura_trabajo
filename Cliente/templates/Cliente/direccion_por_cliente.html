@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %} {% block title %}Lista de contactos{% endblock %}
+{% block content %} 
+
+<div
+class="container-sm mt-5"
+>
+<div
+    class="row justify-content-center align-items-center g-2"
+>
+        
+            
+                <div class="col ">
+                <a href="{% url 'cliente:adress_cliente_create' cliente.id %}"><button type="button" class="btn btn-primary mb-3">  
+                    <i class="bi bi-plus"></i> Agregar dirección
+                  </button></a>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                            <th scope="col" >#</th>
+                            <th scope="col" style="text-align: center;">Cliente</th>
+                            <th scope="col" style="text-align: center;">Tipo de direccion</th>
+                            <th scope="col" style="text-align: center;">Direccion</th>
+                            <th scope="col" style="text-align: center;">Referencia</th>
+                            <th scope="col" style="text-align: center;">País</th>
+                            <th scope="col" style="text-align: center;">Estado</th>
+                            <th scope="col" style="text-align: center;">Ciudad</th>
+                            <th scope="col" style="text-align: center;">Municipio</th>
+                            <th scope="col" style="text-align: center;">Parish</th>
+                            <th scope="col" style="text-align: center;">Código postal</th>
+                            <th scope="col" style="text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for direccion in direcciones %}
+                            <tr class="">
+                                <td scope="row" style="text-align: center;">{{direccion.id}}</td>
+                                <td style="text-align: center;">{{direccion.partner_id}}</td>
+                                <td style="text-align: center;">{{direccion.address_type}}</td>
+                                <td style="text-align: center;">{{direccion.address_line}}</td>
+                                <td style="text-align: center;">{{direccion.ref_address}}</td>
+                                <td style="text-align: center;">{{direccion.country_id}}</td>
+                                <td style="text-align: center;">{{direccion.state_id}}</td>
+                                <td style="text-align: center;">{{direccion.city}}</td>
+                                <td style="text-align: center;">{{direccion.municipality}} </td>
+                                <td style="text-align: center;">{{direccion.parish}} </td>
+                                <td style="text-align: center;">{{direccion.postal_code}}</td>
+                                <td style="text-align: center;">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          <box-icon name='menu'></box-icon>
+                                        </button>
+                                        
+                                        
+                                          <ul class="dropdown-menu">                                     <!--#IMPORTANTE: NO FUNCIONABA PORQUE LE ESTABAMOS PASANDO EL ID QUE NO ERA, COMO ESTAMOS EN UN BUCLE FOR EL ID ES DIRECCIONES.ID-->
+                                          <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:adress_cliente_update' direccion.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                          <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:adress_cliente_delete' direccion.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+
+                                      </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                
+                    </table>
+{% endblock %}
