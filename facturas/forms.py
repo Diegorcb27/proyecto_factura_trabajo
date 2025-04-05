@@ -1,12 +1,12 @@
 from django import forms
-from .models import krp_invoices
+from .models import Facturas
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib import admin
 
-class krp_invoices_Form(forms.ModelForm):
+class Facturas_Form(forms.ModelForm):
     
     class Meta: 
-        model = krp_invoices
+        model = Facturas
         fields = ['partner_id', 'invoice_n', 'invoice_c', 'discount', 'currency_id', 'pub_note', 'pri_note']  
         widgets = {
             # 'cliente': AutocompleteSelect(

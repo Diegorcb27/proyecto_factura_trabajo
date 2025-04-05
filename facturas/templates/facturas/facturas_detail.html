@@ -4,16 +4,16 @@
 <div class="container">
   <div class="row d-flex justify-content-center align-items-center g-2">
     <div class="col">
-      <h2>Factura de {{krp_invoices.partner_id}}</h2>
+      <h2>Factura de {{Facturas.partner_id}}</h2>
       <div>
         <h1>Detalle de la Factura</h1>
-        <p><strong>Cliente:</strong> {{ krp_invoices.partner_id }}</p>
-        <p><strong>Número de factura:</strong> {{ krp_invoices.invoice_n }}</p>
-        <p><strong>Número de control:</strong> {{ krp_invoices.invoice_c }}</p>
-        <p><strong>Descuento:</strong> {{ krp_invoices.discount }}</p>
-        <p><strong>Tipo de moneda:</strong> {{ krp_invoices.currency_id }}</p>
-        <p><strong>Nota pública:</strong> {{ krp_invoices.pub_note }}</p>
-        <p><strong>Nota privada:</strong> {{ krp_invoices.pri_note }}</p>
+        <p><strong>Cliente:</strong> {{ Facturas.partner_id }}</p>
+        <p><strong>Número de factura:</strong> {{ Facturas.invoice_n }}</p>
+        <p><strong>Número de control:</strong> {{ Facturas.invoice_c }}</p>
+        <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
+        <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
+        <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
         {% if request.user.is_authenticated %}  
         <button
           type="button"
@@ -52,13 +52,13 @@
         ></button>
       </div>
       <div class="modal-body">
-        <p><strong>Cliente:</strong> {{ krp_invoices.partner_id }}</p>
-        <p><strong>Número de factura:</strong> {{ krp_invoices.invoice_n }}</p>
-        <p><strong>Número de control:</strong> {{ krp_invoices.invoice_c }}</p>
-        <p><strong>Descuento:</strong> {{ krp_invoices.discount }}</p>
-        <p><strong>Tipo de moneda:</strong> {{ krp_invoices.currency_id }}</p>
-        <p><strong>Nota pública:</strong> {{ krp_invoices.pub_note }}</p>
-        <p><strong>Nota privada:</strong> {{ krp_invoices.pri_note }}</p>
+        <p><strong>Cliente:</strong> {{ Facturas.partner_id }}</p>
+        <p><strong>Número de factura:</strong> {{ Facturas.invoice_n }}</p>
+        <p><strong>Número de control:</strong> {{ Facturas.invoice_c }}</p>
+        <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
+        <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
+        <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
         <!-- Añade más detalles aquí según sea necesario -->
       </div>
       <div class="modal-footer">

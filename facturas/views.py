@@ -2,8 +2,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from .models import krp_invoices
-from .forms import krp_invoices_Form
+from .models import Facturas
+from .forms import Facturas_Form
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -29,8 +29,8 @@ class StaffRequiredMixin(object): #Este mixin requerira que el usuario sea miemb
 
 @method_decorator(login_required, name='dispatch') #este decorador es para verificar si el usuario es staff y asi poder usar estas funcionalidades
 class FacturaCreateView(CreateView): #el staffRequiredMixin que le pasamos como parametro es para comprobar si el usuario ha iniciado sesion para poder usar el create, 
-    model = krp_invoices
-    form_class=krp_invoices_Form
+    model = Facturas
+    form_class=Facturas_Form
     # fields = ["descripcion", "total", "usuario"]
     # success_url = reverse_lazy('facturas:facturas_list') #me redirecciona a la lista de las facturas
     def get_success_url(self):
@@ -39,21 +39,21 @@ class FacturaCreateView(CreateView): #el staffRequiredMixin que le pasamos como 
     
 @method_decorator(login_required, name='dispatch')
 class FacturaListView(ListView):
-    model=krp_invoices
+    model=Facturas
     context_object_name = 'factura_list'
     template_name = 'factura_list.html'
     paginate_by=5
     
     def get_queryset(self): #ordena la factura por numero de factura
-        return krp_invoices.objects.all().order_by('-invoice_n')
+        return Facturas.objects.all().order_by('-invoice_n')
   
            
     
     
 @method_decorator(login_required, name='dispatch')
 class FacturaUpdateView(UpdateView):
-    model = krp_invoices
-    form_class=krp_invoices_Form
+    model = Facturas
+    form_class=Facturas_Form
     # fields = ["descripcion", "total"]
     template_name_suffix = "_update_form"
     
@@ -64,14 +64,13 @@ class FacturaUpdateView(UpdateView):
 @method_decorator(login_required, name='dispatch')
 
 class FacturaDeleteView(DeleteView):
-    model = krp_invoices
+    model = Facturas
     success_url = reverse_lazy('facturas:facturas_list')
     
 
 class FacturaDetailView(DetailView):
-    model = krp_invoices
+    model = Facturas
     
-#creando cliente
 
 
 
@@ -80,7 +79,7 @@ class FacturaDetailView(DetailView):
 from django.http import HttpResponse
 from django.template.loader import get_template
 from weasyprint import HTML
-from .models import krp_invoices
+from .models import Facturas
 from django.views.generic.list import ListView
 import tempfile
 
@@ -111,7 +110,7 @@ def generate_pdf(request, pk):
     
     
     # try:
-        factura = krp_invoices.objects.get(pk=pk)
+        factura = Facturas.objects.get(pk=pk)
         template = get_template('facturas/factura_detail_pdf.html')
         context = {
             "cliente": factura.cliente,
@@ -148,7 +147,7 @@ from openpyxl.styles import Alignment,Border,Font,PatternFill,Side
 class ReportePersonalizadoExcel(TemplateView):
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
-        factura = krp_invoices.objects.get(id=pk)
+        factura = Facturas.objects.get(id=pk)
         wb = Workbook()
         ws = wb.active
         ws.title = 'Reporte'

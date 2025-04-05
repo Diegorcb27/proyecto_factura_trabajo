@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import krp_invoices
+from .models import Facturas
 
 # Register your models here.
 
@@ -14,12 +14,12 @@ from .models import krp_invoices
 
 # admin.py
 from django.contrib import admin
-from .models import krp_invoices, krp_partners
+from .models import Facturas, Clientes
 
-@admin.register(krp_partners)
+@admin.register(Clientes)
 class ClienteAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
-@admin.register(krp_invoices)
+@admin.register(Facturas)
 class FacturaAdmin(admin.ModelAdmin):
     autocomplete_fields = ['partner_id']

@@ -70,20 +70,7 @@
                           </div>
                           
                         </table>
-                        
-                        {% comment %}
-                        <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-                          Factura {{factura.numero_factura}} {{factura.cliente}}
-                          <p><b>{{factura.total}}</b></p>
-                          <p><a href="{% url 'facturas:facturas_detail' factura.id %}">Leer mas</a></p>
-                          <a href="generate_pdf/{{factura.id}}"><button type="button" class="btn btn-warning me-3" data-bs-dismiss="modal">generar PDF</button></a>
-                          <a href="reporte/{{factura.id}}"><button type="button" class="btn btn-success" data-bs-dismiss="modal">generar excel</button></a>
-                        </li>
-                        {% endcomment %}
-                        
                       
-                    
-                       
                     {% else %}
                     <div class="container">
                         <div style="padding-top:50px; text-align:center;">

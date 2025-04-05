@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 
 # Create your models here.
 
-class krp_partners(models.Model):
+class Clientes(models.Model): #Clientes
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     tin= models.CharField(max_length=12, unique=True, default='J-')
@@ -24,9 +24,9 @@ class krp_partners(models.Model):
     
 from django.db import models
 
-class krp_partner_address(models.Model):
+class ClienteDireccion(models.Model): #krp_partner_address
     
-    partner_id = models.ForeignKey(krp_partners, on_delete=models.CASCADE, related_name='addresses')
+    partner_id = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='addresses')
     address_type = models.CharField(max_length=24)  # Representa varchar(24) not null
     address_lines = models.CharField(max_length=120, blank=True, null=True)  # Representa varchar(120)
     ref_address = models.CharField(max_length=64, blank=True, null=True)  # Representa varchar(64)
@@ -41,9 +41,9 @@ class krp_partner_address(models.Model):
         return f"{self.address_type} - {self.city}, {self.state_id}"
 
     
-class krp_partner_contacts(models.Model): 
+class ClienteContactos(models.Model): #ClienteContactos
     id = models.AutoField(primary_key=True)
-    partner_id = models.ForeignKey(krp_partners, on_delete=models.CASCADE, related_name='contactos')
+    partner_id = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='contactos')
     firstname = models.CharField(max_length=17)
     middlename = models.CharField(max_length=15)
     lastname1 = models.CharField(max_length=17)

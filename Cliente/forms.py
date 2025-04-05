@@ -1,10 +1,10 @@
 from django import forms
-from .models import krp_partners, krp_partner_contacts
+from .models import Clientes, ClienteContactos, ClienteDireccion
 
 class ClienteForm(forms.ModelForm):
     
       class Meta: 
-          model = krp_partners
+          model = Clientes
           fields = ['tin', 'name', 'email', 'partner_type', 'is_tax_exempt', 'economy_sector', 'website', 'phone1', 'phone2', 'empl_size', 'pub_note', 'pri_note']  
           widgets = {
             "tin": forms.TextInput(attrs={"class": "form-control"}),
@@ -40,11 +40,45 @@ class ClienteForm(forms.ModelForm):
   
 }
           
+class ClienteDireccionForm(forms.ModelForm):
+    
+      class Meta: 
+          model =  ClienteDireccion
+          fields = ['address_type', 'address_lines', 'ref_address', 'state_id', 'city', 'municipality', 'parish', 'postal_code']  
+          widgets = {
+            "address_type": forms.TextInput(attrs={"class": "form-control"}),
+            "address_lines": forms.TextInput(attrs={"class": "form-control"}),
+            "ref_address": forms.TextInput(attrs={"class": "form-control"}),
+            "country_id": forms.TextInput(attrs={"class": "form-control"}),
+            "state_id": forms.TextInput(attrs={"class": "form-control"}),
+            "city": forms.TextInput(attrs={"class": "form-control"}),
+            "municipality": forms.TextInput(attrs={"class": "form-control"}),
+            "parish": forms.TextInput(attrs={"class": "form-control"}),
+            "postal_code": forms.TextInput(attrs={"class": "form-control"}),
+            
+              
+          }
+    #   esto es para cambiar como se veran la labels en el proyecto
+      
+          labels = {
+    'address_type': 'Tipo de dirección',
+    'address_lines': 'Dirección',
+    'ref_address': 'Dirección de referencia',
+    'country_id': 'País',
+    'state_id': 'Estado',
+    'city': 'Ciudad',
+    'municipality': 'Municipio',
+    'parish': 'Parroquia',
+    'postal_code': 'Código Postal',
+   
+  
+}
+          
           
 class ContactoForm(forms.ModelForm):
     
       class Meta: 
-          model = krp_partner_contacts
+          model = ClienteContactos
           fields = ['partner_id', 'firstname', 'middlename', 'lastname1', 'lastname2', 'position', 'phone', 'phone_ext', 'mobile', 'email', 'in_invoice']  
           widgets = {
             "firstname": forms.TextInput(attrs={"class": "form-control"}),
