@@ -19,6 +19,7 @@ from django.urls import path, include
 from core.urls import core_patterns
 from facturas.urls import facturas_patterns
 from Cliente.urls import cliente_patterns
+from Productos.urls import productos_patterns
 from django.conf import settings
 
 urlpatterns = [
@@ -26,6 +27,7 @@ urlpatterns = [
     path('', include(core_patterns)),
     path('facturas/', include(facturas_patterns) ),
     path('cliente/', include(cliente_patterns) ),
+    path('productos/', include(productos_patterns) ),
     #Path de Auth
     path('accounts/', include('django.contrib.auth.urls')), #agrega todas las urls necesarias para el inicio de sesion de un usuario
     path('accounts/', include('registration.urls')) #esto es para registrar el usuario

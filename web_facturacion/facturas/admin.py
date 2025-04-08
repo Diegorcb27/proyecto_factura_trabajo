@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Factura
+from .models import Facturas
 
 # Register your models here.
 
@@ -14,12 +14,12 @@ from .models import Factura
 
 # admin.py
 from django.contrib import admin
-from .models import Cliente, Factura
+from .models import Facturas, Clientes
 
-@admin.register(Cliente)
+@admin.register(Clientes)
 class ClienteAdmin(admin.ModelAdmin):
-    search_fields = ['nombre']
+    search_fields = ['name']
 
-@admin.register(Factura)
+@admin.register(Facturas)
 class FacturaAdmin(admin.ModelAdmin):
-    autocomplete_fields = ['cliente']
+    autocomplete_fields = ['partner_id']

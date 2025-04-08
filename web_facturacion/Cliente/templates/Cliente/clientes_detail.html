@@ -1,0 +1,94 @@
+{% extends 'core/base.html' %} {% block title %}Cliente detail{% endblock %}
+{%block content %}
+
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center g-2">
+    <div class="col">
+      <div>
+        <h1>Detalles del cliente</h1>
+        <p><strong>Nombre:</strong> {{ partner.name }}</p>
+        <p><strong>R.I.F:</strong> {{ partner.tin }}</p>
+        <p><strong>Tipo de cliente:</strong> {{ partner.partner_type }}</p>
+        <p><strong>Sector económico:</strong> {{ partner.economy_sector }}</p>
+        <p><strong>Pagina web:</strong> {{ partner.website }}</p>
+        <p><strong>Correo electronico:</strong> {{ partner.email }}</p>
+        <p><strong>Fecha de contrato:</strong> {{ partner.contract_d }}</p>
+        <p><strong>Numero de empleados:</strong> {{ partner.empl_size}}</p>
+        <p><strong>telefono 1:</strong> {{ partner.phone1}}</p>
+        <p><strong>telefono 2:</strong> {{ partner.phone2}}</p>
+        <p><strong>Nota pública:</strong> {{ partner.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ partner.pri_note }}</p>
+    
+        {% comment %}
+        
+        {% endcomment %}
+             
+        <a href="{% url 'cliente:direccion_por_cliente' partner.id %}"><button type="button" class="btn btn-primary mb-3">  
+          <i class="bi bi-plus"></i> Ver dirección
+        </button></a>
+        <a href="{% url 'cliente:adress_cliente_create' partner.id %}"><button type="button" class="btn btn-primary mb-3">  
+            <i class="bi bi-plus"></i> Añadir dirección
+          </button></a>
+        
+        {% if request.user.is_authenticated %}  
+        <button
+          type="button"
+          class="btn btn-primary mb-3"
+          data-bs-toggle="modal"
+          data-bs-target="#detalleFacturaModal"
+        >
+          Ver Detalles
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="detalleFacturaModal"
+  tabindex="-1"
+  aria-labelledby="detalleFacturaModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <!-- aqui cambiamos para los tipos de modales -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detalleFacturaModalLabel">
+          Detalles del cliente
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Nombre:</strong> {{ partner.name }}</p>
+        <p><strong>R.I.F:</strong> {{ partner.tin }}</p>
+        <p><strong>Tipo de cliente:</strong> {{ partner.partner_type }}</p>
+        <p><strong>Sector económico:</strong> {{ partner.economy_sector }}</p>
+        <p><strong>Pagina web:</strong> {{ partner.website }}</p>
+        <p><strong>Correo electronico:</strong> {{ partner.email }}</p>
+        <p><strong>Fecha de contrato:</strong> {{ partner.contract_d }}</p>
+        <p><strong>Numero de empleados:</strong> {{ partner.empl_size}}</p>
+        <p><strong>telefono 1:</strong> {{ partner.phone1}}</p>
+        <p><strong>telefono 2:</strong> {{ partner.phone2}}</p>
+        <p><strong>Nota pública:</strong> {{ partner.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ partner.pri_note }}</p>
+        <!-- Añade más detalles aquí según sea necesario -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

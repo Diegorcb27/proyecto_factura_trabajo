@@ -1,0 +1,36 @@
+{% extends 'core/base.html' %} {% block title %}Cliente detail{% endblock %}
+{%block content %}
+
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center g-2">
+    <div class="col">
+      <div>
+        <h1>Detalles de la dirección</h1>
+        <p><strong>Tipo de dirección:</strong> {{ address.address_type }}</p>
+        <p><strong>Líneas de dirección:</strong> {{ address.address_lines }}</p>
+        <p>
+          <strong>Referencia de dirección:</strong> {{ address.ref_address }}
+        </p>
+        <p><strong>País:</strong> {{ address.country_id }}</p>
+        <p><strong>Estado:</strong> {{ address.state_id }}</p>
+        <p><strong>Ciudad:</strong> {{ address.city }}</p>
+        <p><strong>Municipio:</strong> {{ address.municipality }}</p>
+        <p><strong>Parroquia:</strong> {{ address.parish }}</p>
+        <p><strong>Código Postal:</strong> {{ address.postal_code }}</p>
+
+        <a href="{% url 'cliente:adress_cliente_update' address.id %}">
+          <button type="button" class="btn btn-primary mb-3">
+            <i class="bi bi-pencil-square"></i> Editar
+          </button>
+        </a>
+        <a href="{% url 'cliente:adress_cliente_delete' address.id%}">
+          <button type="button" class="btn btn-danger mb-3">
+            <i class="bi bi-trash"></i> Eliminar
+          </button>
+        </a>
+
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
