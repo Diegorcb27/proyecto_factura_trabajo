@@ -1,0 +1,124 @@
+{% extends 'core/base.html' %}
+{% block title %}Lista de facturas{% endblock %}
+
+{% block content %}
+
+<div
+    class="container-sm mt-5"
+>
+    <div
+        class="row justify-content-center align-items-center g-2"
+    >
+    
+        
+            <!-- <ul class="list-group"> -->
+                <div class="col ">
+                  <a href="{% url 'facturas:facturas_create' %}"><button type="button" class="btn btn-primary mb-3">  
+                    <i class="bi bi-plus"></i> Crear factura
+                  </button></a>
+                    {% if request.user.is_authenticated %}
+                        <table>
+                          <div
+                            class="table-responsive"
+                          >
+                      
+                            <table
+                              class="table table-hover"
+                            >
+                            
+                              <thead>
+                                <tr>
+                                  <th scope="col" >#</th>
+                                  <th scope="col" style="text-align: center;">Nro factura</th>
+                                  <th scope="col" style="text-align: center;">Nro control</th>
+                                  <th scope="col" style="text-align: center;">Descuento</th>
+                                  <th scope="col" style="text-align: center;">Moneda</th>
+                                  <th scope="col" style="text-align: center;">Acción</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for factura in factura_list %}
+                                <tr class="">
+                                  <td scope="row" style="text-align: center;">{{factura.id}}</td>
+                                  <td style="text-align: center;">{{factura.invoice_n}}</td>
+                                  <td style="text-align: center;">{{factura.invoice_c}}</td>
+                                  <td style="text-align: center;">{{factura.discount}}</td>
+                                  <td style="text-align: center;">{{factura.currency_id}}</td>
+                                  <td style="text-align: center;">
+                                    <div class="dropdown">
+                                      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <box-icon name='menu'></box-icon>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li style="text-align: center;"><button class="btn btn-outline-warning px-1 mx-2 my-2"><a href="generate_pdf/{{factura.id}}"><box-icon type='solid' name='file-pdf'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-success px-1 mx-2 my-2"><a href="reporte/{{factura.id}}"><box-icon type='solid' name='file-import'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a href="{% url 'facturas:facturas_update' factura.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'facturas:facturas_delete' factura.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+                                        <li style="text-align: center;"><button class="btn btn-outline-info px-1 mx-2 my-2"><a href="{% url 'facturas:facturas_detail' factura.id %}"><box-icon name='spreadsheet'></box-icon></a></button></li>
+                                      </ul>
+                                    </div>
+                                    
+                                    
+                                    
+                                    
+                                  </td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            
+                            </table>
+                          </div>
+                          
+                        </table>
+                      
+                    {% else %}
+                    <div class="container">
+                        <div style="padding-top:50px; text-align:center;">
+                          <h1>Debes iniciar sesion para ver las facturas</h1>
+                          <a href="{% url 'login' %}">Sign in</a>
+                        </div>
+                      </div>
+                    {% endif %}
+
+                        <!-- Menú de paginación -->
+          {% if is_paginated %}
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                <li class="page-item ">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">&laquo;</a>
+                </li>
+              {% endif %}
+              {% for i in paginator.page_range %}
+                <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+                  <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+              {% endfor %}
+              {% if page_obj.has_next %}
+                <li class="page-item ">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">&raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+          {% endif %}
+                </div>
+                
+            </ul>
+        
+        
+    </div>
+    
+</div>
+
+
+
+{% endblock %}

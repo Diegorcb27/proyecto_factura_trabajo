@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %} {% block title %}Lista de contactos{% endblock %}
+{% block content %} 
+
+<div
+class="container-sm mt-5"
+>
+<div
+    class="row justify-content-center align-items-center g-2"
+>
+        
+            
+                <div class="col ">
+                <a href="{% url 'cliente:contacto_create' cliente.id %}"><button type="button" class="btn btn-primary mb-3">  
+                    <i class="bi bi-plus"></i> Agregar contacto
+                  </button></a>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                            <th scope="col" >#</th>
+                            <th scope="col" style="text-align: center;">Pimer nombre</th>
+                            <th scope="col" style="text-align: center;">Segundo nombre</th>
+                            <th scope="col" style="text-align: center;">Primer apellido</th>
+                            <th scope="col" style="text-align: center;">Segundo apellido</th>
+                            <th scope="col" style="text-align: center;">Cargo</th>
+                            <th scope="col" style="text-align: center;">Telefono</th>
+                            <th scope="col" style="text-align: center;">Extension</th>
+                            <th scope="col" style="text-align: center;">Celular</th>
+                            <th scope="col" style="text-align: center;">Email</th>
+                            <th scope="col" style="text-align: center;">Factura</th>
+                            <th scope="col" style="text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contacto in contactos %}
+                            <tr class="">
+                                <td scope="row" style="text-align: center;">{{contacto.id}}</td>
+                                <td style="text-align: center;">{{contacto.firstname}}</td>
+                                <td style="text-align: center;">{{contacto.middlename}}</td>
+                                <td style="text-align: center;">{{contacto.lastname1}}</td>
+                                <td style="text-align: center;">{{contacto.lastname2}}</td>
+                                <td style="text-align: center;">{{contacto.position}}</td>
+                                <td style="text-align: center;">{{contacto.phone}}</td>
+                                <td style="text-align: center;">{{contacto.phone_ext}}</td>
+                                <td style="text-align: center;">{{contacto.mobile}} </td>
+                                <td style="text-align: center;">{{contacto.email}} </td>
+                                <td style="text-align: center;">{{contacto.in_voice}}</td>
+                                <td style="text-align: center;">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          <box-icon name='menu'></box-icon>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:adress_cliente_update' partner.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                          <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:adress_cliente_delete' partner.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+
+                                        </ul>
+                                      </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                
+                    </table>
+
+
+<!-- 
+                {% for contacto in contactos %}
+                <li class="list-group-item mb-5 p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
+                    <h2>Contacto del cliente {{cliente.nombre}} {{cliente.id}}</h2>
+                    <h3>Detalle del contacto</h3>
+                    <p><strong>Contacto ID:</strong> {{ contacto.id }}</p>
+                    <p><strong>Nombre:</strong> {{ contacto.name }}</p>
+                    <p><strong>Cargo:</strong> {{ contacto.cargo }}</p>
+                    <p><strong>Teléfono:</strong> {{ contacto.telephone }}</p>
+                    <p><strong>Celular:</strong> {{ contacto.cellphone }}</p>
+                    <p><strong>Extension:</strong> {{ contacto.extension }}</p>
+                    <p><strong>Email:</strong> {{ contacto.email }}</p>
+                    <a class="btn btn-primary me-3" role="button" href="{% url 'cliente:contacto_update' contacto.id %}">Editar</a> 
+                    <a class="btn btn-primary" role="button" href="{% url 'cliente:contacto_delete' contacto.id %}">Borrar</a>
+                </li>
+                 
+                {% endfor %} -->
+                
+               
+         
+            
+            </div>
+        
+</div>
+</div>
+{% endblock %}
