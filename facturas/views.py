@@ -2,13 +2,14 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from .models import Facturas
-from .forms import Facturas_Form
-from django.urls import reverse_lazy
+from .models import Facturas, Productos, Clientes, ClienteContactos, ClienteDireccion
+from .forms import Facturas_Form, ProductoForm, ClienteDireccionForm, ClienteForm, ContactoForm
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse
 from django.template.loader import get_template
 from weasyprint import HTML
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404, render
+from django.utils import timezone
 
 #estas dos importaciones es para saber si el usuario es miembro del staff y evitarnos la condicion del mixin
 from django.contrib.admin.views.decorators import staff_member_required
@@ -70,7 +71,240 @@ class FacturaDeleteView(DeleteView):
 
 class FacturaDetailView(DetailView):
     model = Facturas
+    context_object_name = 'Facturas'
     
+#Vistas de Productos
+
+#CRUD productos
+
+@method_decorator(login_required, name='dispatch')
+class ProductoCreateView(CreateView):
+    model = Productos
+    form_class = ProductoForm
+    
+    def get_success_url(self):
+        return reverse_lazy('productos:productos_list')
+    
+
+@method_decorator(login_required, name='dispatch')
+class ProductoListView(ListView):
+    model = Productos
+    paginate_by = 100  # if pagination is desired
+    context_object_name = 'producto_list'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+    
+    
+@method_decorator(login_required, name='dispatch')
+class ProductoUpdateView(UpdateView):
+    model = Productos
+    form_class = ProductoForm
+    template_name_suffix = "_update_form"
+    
+    def get_success_url(self):
+        return reverse_lazy('productos:productos_list')
+
+@method_decorator(login_required, name='dispatch')
+class ProductoDeleteView(DeleteView):
+    model = Productos
+    success_url = reverse_lazy('productos:productos_list')
+    
+
+@method_decorator(login_required, name='dispatch')
+class ProductoDetailView(DetailView):
+    model = Productos
+    context_object_name="Productos"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+
+
+#Vistas de Clientes
+@method_decorator(login_required, name='dispatch') 
+class ClienteCreateView(CreateView):
+    model = Clientes
+    # fields = ["nombre", "rif", "telefono_1", "telefono_2", "email", "num_empleados"]
+    form_class=ClienteForm
+    template_name = 'facturas/Clientes_form.html'
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+
+
+@method_decorator(login_required, name='dispatch') 
+class ClienteListView(ListView):
+    model=Clientes
+    context_object_name = 'cliente_list'
+    template_name = 'facturas/cliente_list.html'
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteUpdateView(UpdateView):
+    model = Clientes
+    # fields = ["rif", "nombre", "email", "telefono_1", "telefono_2", "num_empleados"]
+    form_class=ClienteForm
+    template_name_suffix = "_update_form"
+    
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+    
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteDeleteView(DeleteView):
+    model = Clientes
+    success_url = reverse_lazy('cliente:cliente_list')
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteDetailView(DetailView):
+    model = Clientes
+    context_object_name = 'partner' #con este atributo puedo usar este nombre para acceder al modelo de cada cliente en particular
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+    
+#CRUD DIRECCION CLIENTE
+
+# Crear dirección
+class PartnerAddressCreateView(CreateView):
+    model = ClienteDireccion
+    form_class=ClienteDireccionForm
+    # fields = ['address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
+    template_name = 'facturas/cliente_direccion_form.html'
+    def form_valid(self, form):
+        # Obtener el cliente usando el parámetro de la URL
+        cliente = get_object_or_404(Clientes, pk=self.kwargs['partner_id'])
+        form.instance.partner_id = cliente  # Asigna el cliente a la dirección
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirige a la lista de clientes, o la página deseada
+        return reverse_lazy('cliente:cliente_list')
+    
+   
+    
+
+
+# Listar direcciones
+class PartnerAddressListView(ListView):
+    model = ClienteDireccion
+    template_name = 'facturas/cliente_direccion_list.html'
+    context_object_name = 'addresses'
+
+# Detalle de dirección
+class PartnerAddressDetailView(DetailView):
+    model = ClienteDireccion
+    template_name = 'facturas/cliente_direccion_detail.html'
+    context_object_name = 'partner'
+    
+    def get_object(self):
+        # Maneja el error 404 si el objeto no se encuentra
+        return get_object_or_404(ClienteDireccion, pk=self.kwargs['pk'])
+    
+
+class PartnerAddressUpdateView(UpdateView):
+    model = ClienteDireccion
+    form_class=ClienteDireccionForm
+    template_name = 'facturas/cliente_direccion_update_form.html'
+    
+    def get_object(self):
+        return get_object_or_404(ClienteDireccion, pk=self.kwargs['pk'])
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+
+
+# Eliminar dirección
+class PartnerAddressDeleteView(DeleteView):
+    model = ClienteDireccion
+    template_name = 'facturas/cliente_direccion_confirm_delete.html'
+    def get_object(self):
+        # Usa el pk de la URL para buscar el objeto de dirección
+        return get_object_or_404(ClienteDireccion, pk=self.kwargs['pk'])
+
+    def get_success_url(self):
+        # Redirige a la vista de detalle del cliente
+        return reverse('cliente:cliente_detail', kwargs={'pk': self.object.partner_id.id})
+    
+# CRUD CONTACTO
+@method_decorator(login_required, name='dispatch') 
+class ContactoCreateView(CreateView):
+    model = ClienteContactos
+    form_class=ContactoForm
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+    
+    def form_valid(self, form):
+        partner = get_object_or_404(Clientes, pk=self.kwargs['cliente_id'])  # Obtén el objeto relacionado
+        form.instance.partner_id = partner  # Asocia el `partner_id` al formulario
+        return super().form_valid(form)
+    
+
+
+# @method_decorator(login_required, name='dispatch') 
+# class ContactoListView(ListView):
+#     model=Contacto
+#     context_object_name = 'contacto_list'
+#     template_name = 'contacto_list.html'
+    
+@method_decorator(login_required, name='dispatch') 
+class ContactoUpdateView(UpdateView):
+    model = ClienteContactos
+    # fields = ["name", "cargo", "telephone", "cellphone", "extension", "email"]
+    form_class=ContactoForm
+    template_name_suffix = "_update_form"
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+    
+    
+@method_decorator(login_required, name='dispatch') 
+class ContactoDeleteView(DeleteView):
+    model =  ClienteContactos
+    success_url = reverse_lazy('cliente:cliente_list')
+    
+    
+#crearemos una funcion para mostrar las facturas del cliente
+# @method_decorator(login_required, name='dispatch') 
+
+@login_required
+def facturas_por_cliente(request, cliente_id):
+   cliente = get_object_or_404(Clientes, id=cliente_id)
+   facturas = Facturas.objects.filter(partner_id=cliente)
+   return render(request, 'facturas/facturas_por_cliente.html', {'cliente': cliente, 'facturas': facturas})
+
+#Filtro el contacto por cliente
+@login_required
+def contacto_por_cliente(request, cliente_id):
+   cliente = get_object_or_404(Clientes, id=cliente_id)
+   contactos = ClienteContactos.objects.filter(partner_id=cliente)
+   return render(request, 'facturas/contacto_por_cliente.html', {'cliente': cliente, 'contactos': contactos})
+
+@login_required
+def direccion_por_cliente(request, cliente_id):
+    # Obtener el cliente específico
+    cliente = get_object_or_404(Clientes, id=cliente_id)
+    
+    # Obtener las direcciones asociadas al cliente
+    direcciones = ClienteDireccion.objects.filter(partner_id=cliente)
+    
+    # Renderizar la plantilla con los datos
+    return render(request, 'facturas/direccion_por_cliente.html', {'cliente': cliente, 'direcciones': direcciones})
+
+
+
 
 
 

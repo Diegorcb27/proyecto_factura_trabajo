@@ -1,5 +1,63 @@
 {% extends 'core/base.html' %} {% block content %}
-<div class="container">
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{% static 'css/factura_forms.css' %}">
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <div class="container">
+          <div class="row justify-content-between mb-4">
+              <!-- Bloque 1 (más pequeño) -->
+              <div class="block card  shadow-sm col-md-2 p-3 block-cliente">
+                  <h3>Cliente</h3>
+                  <p>{{ form.partner_id }}</p>
+              </div>
+      
+              <!-- Bloque 2 -->
+              <div class="block card shadow-sm col-md-4 p-3">
+                  <h3>Fecha de Factura</h3>
+                  <p>{{ form.invoice_d }}</p>
+                  <h3>Número de Factura</h3>
+                  <p>{{ form.invoice_n }}</p>
+                  <h3>Número de Control</h3>
+                  <p>{{ form.invoice_c }}</p>
+              </div>
+      
+              <!-- Bloque 3 -->
+              <div class="block card shadow-sm col-md-4 p-3">
+                  <h3>Descuento</h3>
+                  <p>{{ form.discount }}</p>
+                  <h3>Tipo de Moneda</h3>
+                  <p>{{ form.currency_id }}</p>
+              </div>
+          </div>
+      
+          <!-- Bloque de Notas -->
+          <div class="row justify-content-between">
+              <div class="block card shadow-sm col-md-6 p-3">
+                  <h3>Nota Pública</h3>
+                  <p>{{ form.pub_note }}</p>
+              </div>
+              <div class="block card shadow-sm col-md-6 p-3">
+                  <h3>Nota Privada</h3>
+                  <p>{{ form.pri_note }}</p>
+              </div>
+          </div>
+      
+          <!-- Botón Centrado -->
+          <div class="d-flex justify-content-center mt-4">
+              <button type="submit" class="btn btn-success">Crear factura</button>
+          </div>
+      </div>
+      
+    </form>
+</body>
+</html>
+
+<!-- <div class="container">
   <div class="row justify-content-center align-items-center g-2 mt-4">
     <div class="col">
       <form method="post">
@@ -15,6 +73,6 @@
       </form>
     </div>
   </div>
-</div>
+</div> -->
 
 {% endblock%}

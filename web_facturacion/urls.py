@@ -17,9 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from core.urls import core_patterns
-from facturas.urls import facturas_patterns
-from Cliente.urls import cliente_patterns
-from Productos.urls import productos_patterns
+from facturas.urls import facturas_patterns, productos_patterns, cliente_patterns
 from django.conf import settings
 
 urlpatterns = [

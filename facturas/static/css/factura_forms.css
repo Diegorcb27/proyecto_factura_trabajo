@@ -1,0 +1,26 @@
+.block {
+    background-color: #ffffff; /* Fondo blanco limpio */
+    border: 1px solid #dee2e6; /* Borde suave */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+.block h3 {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #343a40; /* Color de texto más oscuro */
+    margin-bottom: 10px; /* Espaciado debajo del título */
+}
+
+.block p {
+    font-size: 0.9rem;
+    color: #495057; /* Color de texto */
+}
+
+.container {
+    max-width: 1200px; /* Ancho máximo para centrar el contenido */
+    margin: auto; /* Centrado horizontal */
+    padding: 20px; /* Espaciado interior */
+}
+
+
