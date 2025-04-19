@@ -1,7 +1,9 @@
 from django import forms
-from .models import Facturas, Productos, Clientes, ClienteDireccion, ClienteContactos
+from .models import Facturas, FacturasTransactions,Productos, Clientes, ClienteDireccion, ClienteContactos
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib import admin
+from django.core.exceptions import ValidationError
+
 
 class Facturas_Form(forms.ModelForm):
     
@@ -41,6 +43,39 @@ class Facturas_Form(forms.ModelForm):
         
     
         }
+
+from django import forms
+from .models import FacturasTransactions
+
+class FacturasTransactionsForm(forms.ModelForm):
+    class Meta:
+        model = FacturasTransactions
+        fields = ['product_id', 'price', 'qty', 'amount', 'vat_rate', 'currency_id', 'curr_rate', 'note']
+        widgets = {
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio'}),
+            'qty': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Monto'}),
+            'vat_rate': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Tasa de IVA'}),
+            'currency_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Código de moneda'}),
+            'curr_rate': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Tasa de cambio'}),
+            'note': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Nota adicional', 'rows': 3}),
+        }
+
+        
+        labels = {
+    
+    'product_id': 'Producto',
+    'price': 'Precio del producto',
+    'qty': 'Cantidad',
+    'amout': 'Monto',
+    'vat_rate': 'Porcentaje de I.V.A',
+    'currency_id': 'Tipo de moneda',
+    'curr_rate': 'Porcentaje de cambio',
+    'note': 'Nota',
+    
+  
+}
+
         
 #Formulario de Productos
 
@@ -186,3 +221,41 @@ class ContactoForm(forms.ModelForm):
     'in_invoice': 'Facturar',
   
 }
+          
+          
+          
+from django.forms import modelformset_factory, inlineformset_factory
+
+from django.forms import BaseModelFormSet
+
+class FacturasTransactionsFormSet(BaseModelFormSet):
+    def clean(self):
+        """Valida que al menos haya un producto"""
+        super().clean()
+        if any(self.errors):
+            return
+        if not any(cleaned_data and not cleaned_data.get('DELETE', False) 
+                  for cleaned_data in self.cleaned_data):
+            raise ValidationError("Debe agregar al menos un producto.")
+
+FacturasTransactionsFormSet = modelformset_factory(
+    FacturasTransactions,
+    formset=FacturasTransactionsFormSet,
+    form=FacturasTransactionsForm,
+    extra=1,
+    can_delete=True
+)
+
+# FacturasTransactionsFormSet = modelformset_factory(
+#     FacturasTransactions,
+#     form=FacturasTransactionsForm,
+#     extra=1,
+#     can_delete=True  # Permite eliminar productos
+# )
+# FacturasTransactionsFormSet = inlineformset_factory(
+#     Facturas,
+#     FacturasTransactions,
+#     fields=('product_id', 'price', 'qty', 'amount', 'vat_rate', 'currency_id', 'curr_rate', 'note'),
+#     extra=1,
+#     can_delete=True
+# )

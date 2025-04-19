@@ -1,62 +1,297 @@
-{% extends 'core/base.html' %} {% block content %}
-{% load static %}
+{% extends 'core/base.html' %} {% block content %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <link rel="stylesheet" href="{% static 'css/factura_forms.css' %}">
-</head>
-<body>
-    <form method="post">
-        {% csrf_token %}
-        <div class="container">
-          <div class="row justify-content-between mb-4">
-              <!-- Bloque 1 (más pequeño) -->
-              <div class="block card  shadow-sm col-md-2 p-3 block-cliente">
-                  <h3>Cliente</h3>
-                  <p>{{ form.partner_id }}</p>
-              </div>
-      
-              <!-- Bloque 2 -->
-              <div class="block card shadow-sm col-md-4 p-3">
-                  <h3>Fecha de Factura</h3>
-                  <p>{{ form.invoice_d }}</p>
-                  <h3>Número de Factura</h3>
-                  <p>{{ form.invoice_n }}</p>
-                  <h3>Número de Control</h3>
-                  <p>{{ form.invoice_c }}</p>
-              </div>
-      
-              <!-- Bloque 3 -->
-              <div class="block card shadow-sm col-md-4 p-3">
-                  <h3>Descuento</h3>
-                  <p>{{ form.discount }}</p>
-                  <h3>Tipo de Moneda</h3>
-                  <p>{{ form.currency_id }}</p>
-              </div>
+  <head>
+    <link rel="stylesheet" href="{% static 'css/factura_forms.css' %}" />
+  </head>
+  <body>
+    <form method="post" id="id_productos-TOTAL_FORMS">
+      {% csrf_token %}
+      <div class="container">
+        <div class="row justify-content-between mb-4">
+          <!-- Bloque 1 (más pequeño) -->
+          <div class="block card shadow-sm col-md-2 p-3 block-cliente">
+            <h3>Cliente</h3>
+            <p>{{ form.partner_id }}</p>
           </div>
-      
-          <!-- Bloque de Notas -->
-          <div class="row justify-content-between">
-              <div class="block card shadow-sm col-md-6 p-3">
-                  <h3>Nota Pública</h3>
-                  <p>{{ form.pub_note }}</p>
-              </div>
-              <div class="block card shadow-sm col-md-6 p-3">
-                  <h3>Nota Privada</h3>
-                  <p>{{ form.pri_note }}</p>
-              </div>
+
+          <!-- Bloque 2 -->
+          <div class="block card shadow-sm col-md-4 p-3">
+            <h3>Fecha de Factura</h3>
+            <p>{{ form.invoice_d }}</p>
+            <h3>Número de Factura</h3>
+            <p>{{ form.invoice_n }}</p>
+            <h3>Número de Control</h3>
+            <p>{{ form.invoice_c }}</p>
           </div>
-      
-          <!-- Botón Centrado -->
-          <div class="d-flex justify-content-center mt-4">
-              <button type="submit" class="btn btn-success">Crear factura</button>
+
+          <!-- Bloque 3 -->
+          <div class="block card shadow-sm col-md-4 p-3">
+            <h3>Descuento</h3>
+            <p>{{ form.discount }}</p>
+            <h3>Tipo de Moneda</h3>
+            <p>{{ form.currency_id }}</p>
           </div>
+        </div>
+
+        <!-- Bloque de Notas -->
+        <div class="row justify-content-between">
+          <div class="block card shadow-sm col-md-6 p-3">
+            <h3>Nota Pública</h3>
+            <p>{{ form.pub_note }}</p>
+          </div>
+          <div class="block card shadow-sm col-md-6 p-3">
+            <h3>Nota Privada</h3>
+            <p>{{ form.pri_note }}</p>
+          </div>
+        </div>
+        {% if messages %}
+        <div class="alert-messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% comment %}
+        <h3>Productos</h3>
+        {{ productos_formset.management_form }} 
+        {% for form in productos_formset%}
+        <div class="card mb-3 p-3">{{ form.as_p }}</div>
+        {% endfor %}
+        {% endcomment %}
+
+  <!-- Sección de Productos -->
+  <h3>Productos</h3>
+  <div id="productos-formset">
+    {{ productos_formset.management_form }}
+      {% for form in productos_formset %}
+      <div class="producto-form card mb-3 p-3">
+        <!-- {{ productos_formset.as_p }} -->
+        {{  form.as_p }}
+          {% if not forloop.first %}
+          <button type="button" class="eliminar-producto btn btn-danger">Eliminar</button>
+          {% endif %}
       </div>
-      
-    </form>
+      {% endfor %}
+  </div>
+  
+  <button type="button" id="agregar-producto" class="btn btn-primary">Agregar Producto</button>
+  
+  <div class="d-flex justify-content-center mt-4">
+      <button type="submit" class="btn btn-success">Crear factura</button>
+  </div>
+</div>
+</form>
+
+
+{% comment %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const formsetContainer = document.getElementById('productos-formset');
+    const addButton = document.getElementById('agregar-producto');
+    const totalForms = document.getElementById('id_productos-TOTAL_FORMS');
+    const formPrefix = 'productos';
+    
+    let formCount = parseInt(totalForms.value);
+    
+    // Función para actualizar todos los índices
+    function updateFormIndexes(formElement, newIndex) {
+        // Actualizar inputs
+        formElement.querySelectorAll('input, select, textarea').forEach(input => {
+            if (input.name) {
+                input.name = input.name.replace(`${formPrefix}-\\d+-`, `${formPrefix}-${newIndex}-`);
+            }
+            if (input.id) {
+                input.id = input.id.replace(`id_${formPrefix}-\\d+-`, `id_${formPrefix}-${newIndex}-`);
+            }
+        });
+        
+        // Actualizar labels
+        formElement.querySelectorAll('label').forEach(label => {
+            if (label.htmlFor) {
+                label.htmlFor = label.htmlFor.replace(`id_${formPrefix}-\\d+-`, `id_${formPrefix}-${newIndex}-`);
+            }
+        });
+        
+        // Agregar dataset index
+        formElement.dataset.index = newIndex;
+    }
+    
+    // Clonar y preparar nuevo formulario
+    function cloneNewForm() {
+        const templateForm = formsetContainer.querySelector('.producto-form');
+        const newForm = templateForm.cloneNode(true);
+        
+        // Limpiar valores
+        newForm.querySelectorAll('input, select, textarea').forEach(input => {
+            if (input.type !== 'hidden' && input.name !== 'csrfmiddlewaretoken') {
+                input.value = '';
+            }
+        });
+        
+        return newForm;
+    }
+    
+    // Agregar nuevo formulario
+    addButton.addEventListener('click', function() {
+        const newForm = cloneNewForm();
+        updateFormIndexes(newForm, formCount);
+        
+        // Agregar botón de eliminar si no lo tiene
+        if (!newForm.querySelector('.eliminar-producto')) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'eliminar-producto btn btn-danger';
+            deleteBtn.textContent = 'Eliminar';
+            newForm.appendChild(deleteBtn);
+        }
+        
+        formsetContainer.appendChild(newForm);
+        totalForms.value = ++formCount;
+    });
+    
+    // Eliminar formulario
+    formsetContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('eliminar-producto')) {
+            const formToRemove = e.target.closest('.producto-form');
+            if (formToRemove && formsetContainer.querySelectorAll('.producto-form').length > 1) {
+                formToRemove.remove();
+                totalForms.value = --formCount;
+                
+                // Reindexar todos los formularios
+                const forms = formsetContainer.querySelectorAll('.producto-form');
+                forms.forEach((form, index) => {
+                    updateFormIndexes(form, index);
+                });
+            }
+        }
+    });
+});
+ </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const formsetContainer = document.getElementById('productos-formset');
+    const addButton = document.getElementById('agregar-producto');
+    const totalForms = document.getElementById('id_productos-TOTAL_FORMS');
+    const formPrefix = 'productos';
+    
+    let formCount = parseInt(totalForms.value);
+    
+    // Función para actualizar todos los índices en el HTML
+    function updateFormIndexes(html, newIndex) {
+        return html
+            .replace(new RegExp(`${formPrefix}-(\\d+)-`, 'g'), `${formPrefix}-${newIndex}-`)
+            .replace(/id="id_productos-\d+-/g, `id="id_productos-${newIndex}-`)
+            .replace(/for="id_productos-\d+-/g, `for="id_productos-${newIndex}-`);
+    }
+    
+    // Agregar nuevo formulario
+    addButton.addEventListener('click', function() {
+        const newForm = document.createElement('div');
+        newForm.className = 'producto-form card mb-3 p-3';
+        
+        // Obtener el template del primer formulario
+        const templateForm = formsetContainer.querySelector('.producto-form');
+        const templateHtml = templateForm.innerHTML;
+        
+        // Actualizar todos los índices
+        newForm.innerHTML = updateFormIndexes(templateHtml, formCount);
+        
+        // Agregar botón de eliminar
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'eliminar-producto btn btn-danger';
+        deleteBtn.textContent = 'Eliminar';
+        newForm.appendChild(deleteBtn);
+        
+        formsetContainer.appendChild(newForm);
+        totalForms.value = ++formCount;
+    });
+    
+    // Eliminar formulario
+    formsetContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('eliminar-producto')) {
+            const formToRemove = e.target.closest('.producto-form');
+            if (formToRemove && formsetContainer.querySelectorAll('.producto-form').length > 1) {
+                formToRemove.remove();
+                totalForms.value = --formCount;
+                
+                // Reindexar los formularios restantes
+                const forms = formsetContainer.querySelectorAll('.producto-form');
+                forms.forEach((form, index) => {
+                    form.innerHTML = updateFormIndexes(form.innerHTML, index);
+                });
+            }
+        }
+    });
+});
+ </script>
+<!-- Script original -->
+
+
+{% endcomment %}
+  
+<!-- script actualizado -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const formsetContainer = document.getElementById('productos-formset');
+  const addButton = document.getElementById('agregar-producto');
+  const totalForms = document.getElementById('id_productos-TOTAL_FORMS');
+  const formPrefix = 'productos';
+  
+  // Contador para nuevos formularios
+  let formCount = parseInt(totalForms.value);
+  
+  
+  // Agregar nuevo formulario
+  addButton.addEventListener('click', function() {
+    const newForm = document.createElement('div');
+    newForm.className = 'producto-form card mb-3 p-3';
+    
+    // Obtener el template del primer formulario
+    const template = formsetContainer.querySelector('.producto-form').innerHTML;
+    
+    // Reemplazar índices
+    newForm.innerHTML = template.replace(
+        new RegExp(`${formPrefix}-(\\d+)-`, 'g'), 
+        `${formPrefix}-${formCount}-`
+    );
+  
+    
+    
+    // Agregar botón de eliminar
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'eliminar-producto btn btn-danger';
+    deleteBtn.textContent = 'Eliminar';
+    newForm.appendChild(deleteBtn);
+    
+    formsetContainer.appendChild(newForm);
+    totalForms.value = ++formCount;
+  });
+  
+  // Eliminar formulario
+  formsetContainer.addEventListener('click', function(e) {
+    if (e.target.classList.contains('eliminar-producto')) {
+        const formToRemove = e.target.closest('.producto-form');
+        if (formToRemove && formsetContainer.querySelectorAll('.producto-form').length > 1) {
+            formToRemove.remove();
+            totalForms.value = --formCount;
+        }
+    }
+  });
+  });
+  </script>
+
+
+
 </body>
 </html>
-
+{% endblock %}
 <!-- <div class="container">
   <div class="row justify-content-center align-items-center g-2 mt-4">
     <div class="col">
@@ -74,5 +309,3 @@
     </div>
   </div>
 </div> -->
-
-{% endblock%}
