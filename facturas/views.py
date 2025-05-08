@@ -91,6 +91,13 @@ class FacturaDetailView(DetailView):
     model = Facturas
     context_object_name = 'Facturas'
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        factura = self.object  # Obtiene la factura actual
+        total_balance = sum(transaction.calcular_total() for transaction in FacturasTransactions.objects.filter(invoice_id=factura))
+        context['total_balance'] = total_balance
+        return context
+    
 
 #Vistas de transacciones
 
@@ -108,6 +115,9 @@ class  FacturasTransactionsCreateView(CreateView):
         factura = get_object_or_404(Facturas, pk=self.kwargs['product_id'])  # Obtén el objeto relacionado
         form.instance.invoice_id = factura  # Asocia el `partner_id` al formulario
         return super().form_valid(form)
+    
+    
+    
 
 @method_decorator(login_required, name="dispatch")
 class FacturasTransactionsUpdateView(UpdateView):

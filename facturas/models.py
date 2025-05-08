@@ -130,7 +130,7 @@ class Facturas(models.Model): #Facturas
         return self.invoice_n
     
     def get_factura_transaction(self):
-        return self.transacciones.all()
+        return self.transacciones.all() #se relaciona con el related name de FacturasTransaction
 
         # return self.facturastransactions_set.all()#me trae las facturas transaction relacionadas a esta factura
 
@@ -154,6 +154,9 @@ class  FacturasTransactions(models.Model): #krp_invoice_transactions
         total_sin_iva = self.price * self.qty
         total_con_iva = total_sin_iva + (total_sin_iva * self.vat_rate / 100)
         return total_con_iva
+    
+   
+
 
     def __str__(self):
         """
