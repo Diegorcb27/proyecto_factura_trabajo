@@ -190,7 +190,7 @@ class ContactoForm(forms.ModelForm):
     
       class Meta: 
           model = ClienteContactos
-          fields = ['partner_id', 'firstname', 'middlename', 'lastname1', 'lastname2', 'position', 'phone', 'phone_ext', 'mobile', 'email', 'in_invoice']  
+          fields = ['firstname', 'middlename', 'lastname1', 'lastname2', 'position', 'phone', 'phone_ext', 'mobile', 'email', 'in_invoice']  
           widgets = {
             "firstname": forms.TextInput(attrs={"class": "form-control"}),
             "middlename": forms.TextInput(attrs={"class": "form-control"}),
@@ -208,7 +208,6 @@ class ContactoForm(forms.ModelForm):
     #   esto es para cambiar como se veran la labels en el proyecto
       
           labels = {
-    'partner_id': 'Cliente',
     'firstname': 'Primer nombre',
     'middlename': 'Segundo nombre',
     'lastname1': 'Primer apellido',
@@ -223,39 +222,5 @@ class ContactoForm(forms.ModelForm):
 }
           
           
-          
-from django.forms import modelformset_factory, inlineformset_factory
 
-from django.forms import BaseModelFormSet
 
-class FacturasTransactionsFormSet(BaseModelFormSet):
-    def clean(self):
-        """Valida que al menos haya un producto"""
-        super().clean()
-        if any(self.errors):
-            return
-        if not any(cleaned_data and not cleaned_data.get('DELETE', False) 
-                  for cleaned_data in self.cleaned_data):
-            raise ValidationError("Debe agregar al menos un producto.")
-
-FacturasTransactionsFormSet = modelformset_factory(
-    FacturasTransactions,
-    formset=FacturasTransactionsFormSet,
-    form=FacturasTransactionsForm,
-    extra=1,
-    can_delete=True
-)
-
-# FacturasTransactionsFormSet = modelformset_factory(
-#     FacturasTransactions,
-#     form=FacturasTransactionsForm,
-#     extra=1,
-#     can_delete=True  # Permite eliminar productos
-# )
-# FacturasTransactionsFormSet = inlineformset_factory(
-#     Facturas,
-#     FacturasTransactions,
-#     fields=('product_id', 'price', 'qty', 'amount', 'vat_rate', 'currency_id', 'curr_rate', 'note'),
-#     extra=1,
-#     can_delete=True
-# )

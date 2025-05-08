@@ -3,7 +3,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
 from .models import Facturas, FacturasTransactions, Productos, Clientes, ClienteContactos, ClienteDireccion
-from .forms import Facturas_Form, FacturasTransactionsForm, ProductoForm, ClienteDireccionForm, ClienteForm, ContactoForm, FacturasTransactionsFormSet
+from .forms import Facturas_Form, ProductoForm, ClienteDireccionForm, ClienteForm, ContactoForm, FacturasTransactionsForm
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -38,91 +38,10 @@ class FacturaCreateView(CreateView):
     form_class = Facturas_Form
     # template_name = 'facturas/factura_form.html'  # Asegúrate de que esta plantilla exista
     
-        
-
-    def get_context_data(self, **kwargs):
-        """
-        Agrega el FormSet de productos al contexto.
-        """
-        context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['productos_formset'] = FacturasTransactionsFormSet(self.request.POST)
-        else:
-            # Inicializamos un FormSet vacío para los productos
-            context['productos_formset'] = FacturasTransactionsFormSet(queryset=FacturasTransactions.objects.none())
-        return context
-
-    def form_valid(self, form):
-        """
-        Guarda la factura y los productos asociados.
-        """
-        context = self.get_context_data()
-        productos_formset = context['productos_formset']
-        # print(productos_formset)
-        try:
-            # Utilizamos una transacción para garantizar atomicidad
-            with transaction.atomic():
-                self.object = form.save()  # Crear la factura
-
-                if productos_formset.is_valid():
-                    
-                    productos = productos_formset.save(commit=False)
-                
-                    for producto in productos:
-                        
-                        producto.invoice_id = self.object  # Relaciona el producto con la factura
-                       
-                        producto.save()
-                        print(productos)
-                        print(producto)
-                else:
-                    # Manejo de errores en el FormSet de productos
-                    messages.error(self.request, "Hay errores en los productos. Por favor, revísalos.")
-                    return self.form_invalid(form)
-
-            # Si todo va bien, mostramos un mensaje de éxito y redirigimos
-            messages.success(self.request, "¡Factura creada correctamente!")
-            return redirect('facturas:facturas_list')  # Redirige al listado de facturas
-
-        except Exception as e:
-            # Manejo de errores durante la transacción
-            messages.error(self.request, f"Error al guardar la factura: {str(e)}")
-            return self.form_invalid(form)
-    
-    # def form_valid(self, form):
-    #     context = self.get_context_data()
-    #     productos_formset = context['productos_formset']
-        
-    #     if not productos_formset.is_valid():
-    #         messages.error(self.request, "Corrija los errores en los productos.")
-    #         return self.form_invalid(form)
             
-    #     try:
-    #         with transaction.atomic():
-    #             self.object = form.save()
-                
-    #             # Guardar los productos
-    #             productos = productos_formset.save(commit=False)
-    #             if not productos:
-    #                 messages.error(self.request, "Debe agregar al menos un producto.")
-    #                 return self.form_invalid(form)
-                    
-    #             for producto in productos:
-    #                 producto.invoice_id = self.object
-    #                 producto.save()
-                    
-    #             # Guardar los que se marcaron para eliminar
-    #             for form in productos_formset.deleted_forms:
-    #                 if form.instance.pk:
-    #                     form.instance.delete()
-                        
-    #             messages.success(self.request, "Factura creada correctamente!")
-    #             return redirect('facturas:facturas_list')
-                
-    #     except Exception as e:
-    #         messages.error(self.request, f"Error al guardar: {str(e)}")
-    #         return self.form_invalid(form)
-        
+    def get_success_url(self):
+        return reverse_lazy('facturas:facturas_list')
+  
  
 
     def form_invalid(self, form):
@@ -133,51 +52,7 @@ class FacturaCreateView(CreateView):
         messages.error(self.request, "Hubo un error al crear la factura. Por favor, revisa los datos.")
         return self.render_to_response(context)
     
-    #logica de copilot
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     # Crea el FormSet para los productos
-    #     if self.request.POST:
-    #         context['productos_formset'] = modelformset_factory(
-    #             FacturasTransactions,
-    #             form=FacturasTransactionsForm,
-    #             extra=1
-    #         )(self.request.POST)
-    #     else:
-    #         context['productos_formset'] = modelformset_factory(
-    #             FacturasTransactions,
-    #             form=FacturasTransactionsForm,
-    #             extra=1
-    #         )()
-    #     return context
-
-    # def form_valid(self, form):
-    #     context = self.get_context_data()
-    #     productos_formset = context['productos_formset']
-
-    #     # Guarda la factura primero
-    #     self.object = form.save()
-
-    #     # Valida y guarda los productos
-    #     if productos_formset.is_valid():
-    #         for producto_form in productos_formset:
-    #             producto = producto_form.save(commit=False)
-    #             producto.invoice_id = self.object  # Relaciona con la factura
-    #             producto.save()
-
-    #     return redirect('facturas:facturas_list')  # Redirige a la lista de facturas
-
-    # def form_invalid(self, form):
-    #     context = self.get_context_data(form=form)
-    #     return self.render_to_response(context)
-    
-        # model = Facturas
-    # form_class=Facturas_Form
-    # # fields = ["descripcion", "total", "usuario"]
-    # # success_url = reverse_lazy('facturas:facturas_list') #me redirecciona a la lista de las facturas
-    # def get_success_url(self):
-    #     return reverse_lazy('facturas:facturas_list')
+  
 
 
     
@@ -215,6 +90,43 @@ class FacturaDeleteView(DeleteView):
 class FacturaDetailView(DetailView):
     model = Facturas
     context_object_name = 'Facturas'
+    
+
+#Vistas de transacciones
+
+@method_decorator(login_required, name='dispatch')
+class  FacturasTransactionsCreateView(CreateView):
+    model = FacturasTransactions
+    form_class = FacturasTransactionsForm
+    template_name = 'facturas/facturas_transaction_form.html'
+    
+    
+    def get_success_url(self):
+        return reverse_lazy('facturas:facturas_list')
+    
+    def form_valid(self, form):
+        factura = get_object_or_404(Facturas, pk=self.kwargs['product_id'])  # Obtén el objeto relacionado
+        form.instance.invoice_id = factura  # Asocia el `partner_id` al formulario
+        return super().form_valid(form)
+
+@method_decorator(login_required, name="dispatch")
+class FacturasTransactionsUpdateView(UpdateView):
+     model = FacturasTransactions
+     form_class = FacturasTransactionsForm
+     template_name_suffix = "_update_form"
+     template_name = 'facturas/facturas_transaction_update_form.html'
+     
+     def get_success_url(self):
+        return reverse_lazy('facturas:facturas_list')
+    
+@method_decorator(login_required, name="dispatch")
+class FacturasTransactionDeleteView(DeleteView):
+    model = FacturasTransactions
+    template_name = 'facturas/facturas_transaction_confirm_delete.html'
+    success_url = reverse_lazy('facturas:facturas_list')
+    
+    
+    
     
 #Vistas de Productos
 
@@ -383,6 +295,7 @@ class PartnerAddressDeleteView(DeleteView):
 class ContactoCreateView(CreateView):
     model = ClienteContactos
     form_class=ContactoForm
+    # template_name = 'facturas/cliente_contactos_form.html'
     
     def get_success_url(self):
       

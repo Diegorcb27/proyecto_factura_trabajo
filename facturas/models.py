@@ -130,12 +130,14 @@ class Facturas(models.Model): #Facturas
         return self.invoice_n
     
     def get_factura_transaction(self):
-        return self.facturastransactions_set.all() #me trae las facturas transaction relacionadas a esta factura
+        return self.transacciones.all()
+
+        # return self.facturastransactions_set.all()#me trae las facturas transaction relacionadas a esta factura
 
     
     
 class  FacturasTransactions(models.Model): #krp_invoice_transactions
-    invoice_id = models.ForeignKey(Facturas, on_delete=models.CASCADE)  # Relación con una factura (idealmente ForeignKey en un modelo más complejo)
+    invoice_id = models.ForeignKey(Facturas, on_delete=models.CASCADE, related_name="transacciones")  # Relación con una factura (idealmente ForeignKey en un modelo más complejo)
     product_id = models.ForeignKey(Productos, on_delete=models.CASCADE)  # Relación con un producto
     price = models.DecimalField(max_digits=15, decimal_places=2)  # Precio con precisión decimal
     qty = models.PositiveIntegerField()  # Cantidad numérica positiva

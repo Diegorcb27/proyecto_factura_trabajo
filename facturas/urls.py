@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import FacturaCreateView, FacturaListView, FacturaDetailView, FacturaUpdateView, FacturaDeleteView, ProductoListView, ProductoCreateView, ProductoDeleteView, ProductoDetailView, ProductoUpdateView,ClienteCreateView, ClienteListView, ClienteUpdateView, ClienteDeleteView, ClienteDetailView, PartnerAddressCreateView, PartnerAddressUpdateView, PartnerAddressDeleteView, PartnerAddressDetailView,  ContactoCreateView, ContactoDeleteView, ContactoUpdateView, facturas_por_cliente, contacto_por_cliente, generate_pdf, direccion_por_cliente, generate_pdf, ReportePersonalizadoExcel
+from .views import FacturaCreateView, FacturaListView, FacturaDetailView, FacturaUpdateView, FacturaDeleteView, ProductoListView, ProductoCreateView, ProductoDeleteView, ProductoDetailView, ProductoUpdateView,ClienteCreateView, ClienteListView, ClienteUpdateView, ClienteDeleteView, ClienteDetailView, PartnerAddressCreateView, PartnerAddressUpdateView, PartnerAddressDeleteView, PartnerAddressDetailView,  ContactoCreateView, ContactoDeleteView, ContactoUpdateView, FacturasTransactionsCreateView, FacturasTransactionsUpdateView, FacturasTransactionDeleteView, facturas_por_cliente, contacto_por_cliente, generate_pdf, direccion_por_cliente, generate_pdf, ReportePersonalizadoExcel
 
 facturas_patterns = ([
     path('', FacturaListView.as_view(), name="facturas_list"),
@@ -41,3 +41,12 @@ cliente_patterns = ([
     path('contacto_delete/<int:pk>/', ContactoDeleteView.as_view(), name="contacto_delete"),
     path('contacto/cliente/<int:cliente_id>/', contacto_por_cliente, name='contacto_por_cliente'),
     ], "cliente")
+
+
+transaction_patterns = ([
+    # path('', FacturaListView.as_view(), name="facturas_list"),
+    path('create/<int:product_id>/', FacturasTransactionsCreateView.as_view(), name="transaction_create"),
+    path('update/<int:pk>/', FacturasTransactionsUpdateView.as_view(), name="transaction_update"),
+    path('delete/<int:pk>/', FacturasTransactionDeleteView.as_view(), name="transaction_delete"),
+   
+    ], "transaction")

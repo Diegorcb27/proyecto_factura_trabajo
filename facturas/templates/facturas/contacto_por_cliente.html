@@ -18,7 +18,7 @@ class="container-sm mt-5"
                         <thead>
                             <tr>
                             <th scope="col" >#</th>
-                            <th scope="col" style="text-align: center;">Pimer nombre</th>
+                            <th scope="col" style="text-align: center;">Primer nombre</th>
                             <th scope="col" style="text-align: center;">Segundo nombre</th>
                             <th scope="col" style="text-align: center;">Primer apellido</th>
                             <th scope="col" style="text-align: center;">Segundo apellido</th>
@@ -51,8 +51,8 @@ class="container-sm mt-5"
                                           <box-icon name='menu'></box-icon>
                                         </button>
                                         <ul class="dropdown-menu">
-                                          <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:adress_cliente_update' partner.id %}"><box-icon name='edit'></box-icon></a></button></li>
-                                          <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:adress_cliente_delete' partner.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+                                          <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'cliente:contacto_update' contacto.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                          <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'cliente:contacto_delete' contacto.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
 
                                         </ul>
                                       </div>

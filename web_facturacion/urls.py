@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from core.urls import core_patterns
-from facturas.urls import facturas_patterns, productos_patterns, cliente_patterns
+from facturas.urls import facturas_patterns, productos_patterns, cliente_patterns, transaction_patterns
 from django.conf import settings
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
     path('facturas/', include(facturas_patterns) ),
     path('cliente/', include(cliente_patterns) ),
     path('productos/', include(productos_patterns) ),
+    path('transaccion/', include(transaction_patterns) ),
     #Path de Auth
     path('accounts/', include('django.contrib.auth.urls')), #agrega todas las urls necesarias para el inicio de sesion de un usuario
     path('accounts/', include('registration.urls')) #esto es para registrar el usuario

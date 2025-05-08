@@ -54,31 +54,13 @@
             {% endfor %}
         </div>
         {% endif %}
-        
-        {% comment %}
-        <h3>Productos</h3>
-        {{ productos_formset.management_form }} 
-        {% for form in productos_formset%}
-        <div class="card mb-3 p-3">{{ form.as_p }}</div>
-        {% endfor %}
-        {% endcomment %}
+    
 
   <!-- Sección de Productos -->
-  <h3>Productos</h3>
-  <div id="productos-formset">
-    {{ productos_formset.management_form }}
-      {% for form in productos_formset %}
-      <div class="producto-form card mb-3 p-3">
-        <!-- {{ productos_formset.as_p }} -->
-        {{  form.as_p }}
-          {% if not forloop.first %}
-          <button type="button" class="eliminar-producto btn btn-danger">Eliminar</button>
-          {% endif %}
-      </div>
-      {% endfor %}
-  </div>
+  <!-- <h3>Productos</h3>
+ 
   
-  <button type="button" id="agregar-producto" class="btn btn-primary">Agregar Producto</button>
+  <button type="button" id="agregar-producto" class="btn btn-primary">Agregar Producto</button> -->
   
   <div class="d-flex justify-content-center mt-4">
       <button type="submit" class="btn btn-success">Crear factura</button>
@@ -231,10 +213,6 @@
 });
  </script>
 <!-- Script original -->
-
-
-{% endcomment %}
-  
 <!-- script actualizado -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -286,6 +264,10 @@
   });
   });
   </script>
+
+{% endcomment %}
+  
+
 
 
 
