@@ -384,32 +384,7 @@ from django.views.generic.list import ListView
 import tempfile
 
 def generate_pdf(request, pk):
-#     factura = Factura.objects.get(pk=pk)
-#     template = get_template('facturas/factura_detail_pdf.html')
-#     context = {
-#         "descripcion": factura.descripcion,
-#         "total": factura.total,
-#         "id": factura.id,
-#         "usuario": factura.usuario
-#     }
-#     html_template = template.render(context)
-#     pdf_file = HTML(string=html_template).write_pdf()
-
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'filename="factura_{pk}.pdf"'
-#     response['Content-Transfer-Encoding'] = 'binary'
-
-#     with tempfile.NamedTemporaryFile(delete=True) as output:
-#         output.write(pdf_file)
-#         output.flush()
-
-#         output = open(output.name, 'rb')
-#         response.write(output.read())
-
-#     return response
-    
-    
-    # try:
+#
         factura = Facturas.objects.get(pk=pk)
         template = get_template('facturas/factura_detail_pdf.html')
         context = {
@@ -433,11 +408,7 @@ def generate_pdf(request, pk):
         response['Content-Disposition'] = 'attachment; filename="output.pdf"'
         print(pk)
         return response
-    
-    # f' attachment; filename="factura_{pk}.pdf"'
-    # except Exception as e:
-    #     return HttpResponse(f"Error: {e}")
-    
+ 
     #generar Excel
 from openpyxl import Workbook
 from openpyxl.styles import Alignment,Border,Font,PatternFill,Side
