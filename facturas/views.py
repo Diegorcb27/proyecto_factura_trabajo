@@ -126,14 +126,22 @@ class FacturasTransactionsUpdateView(UpdateView):
      template_name_suffix = "_update_form"
      template_name = 'facturas/facturas_transaction_update_form.html'
      
+    #  def get_success_url(self):
+    #     return reverse_lazy('facturas:facturas_list')
+    
      def get_success_url(self):
-        return reverse_lazy('facturas:facturas_list')
+        factura_id = self.object.invoice_id.id  # Obtener el ID de la factura asociada
+        return reverse('facturas:facturas_detail', kwargs={'pk': factura_id})
     
 @method_decorator(login_required, name="dispatch")
+
 class FacturasTransactionDeleteView(DeleteView):
     model = FacturasTransactions
     template_name = 'facturas/facturas_transaction_confirm_delete.html'
-    success_url = reverse_lazy('facturas:facturas_list')
+    # success_url = reverse_lazy('facturas:facturas_list')
+    def get_success_url(self):
+        factura_id = self.object.invoice_id.id  # Obtener el ID de la factura asociada
+        return reverse('facturas:facturas_detail', kwargs={'pk': factura_id})
     
     
     
@@ -173,6 +181,7 @@ class ProductoUpdateView(UpdateView):
         return reverse_lazy('productos:productos_list')
 
 @method_decorator(login_required, name='dispatch')
+
 class ProductoDeleteView(DeleteView):
     model = Productos
     success_url = reverse_lazy('productos:productos_list')
@@ -376,39 +385,71 @@ def direccion_por_cliente(request, cliente_id):
 
 #generar PDF
 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
 from django.http import HttpResponse
-from django.template.loader import get_template
-from weasyprint import HTML
-from .models import Facturas
-from django.views.generic.list import ListView
-import tempfile
 
 def generate_pdf(request, pk):
-#
-        factura = Facturas.objects.get(pk=pk)
-        template = get_template('facturas/factura_detail_pdf.html')
-        context = {
-            "cliente": factura.cliente,
-            "numero_factura": factura.numero_factura,
-            "rif": factura.rif,
-            "domicilio": factura.domicilio_fiscal,
-            "telefono": factura.telefono,
-            "descripcion": factura.descripcion,
-            "forma_pago": factura.forma_pago,
-            "Importe": factura.importe,
-            "iva":factura.iva,
-            "total": factura.calcular_total_con_iva,
-            "id": factura.id,
-            
-            
-        }
-        html_template = template.render(context)
-        pdf_file = HTML(string=html_template).write_pdf(target=f"factura_{pk}.pdf")
-        response = HttpResponse(pdf_file, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="output.pdf"'
-        print(pk)
-        return response
- 
+    # Obtener datos de la factura
+    factura = Facturas.objects.get(pk=pk)
+
+    # Crear respuesta HTTP para el PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
+
+    # Crear el lienzo del PDF
+    pdf = canvas.Canvas(response, pagesize=letter)
+    pdf.setTitle(f"Factura de {factura.partner_id}")
+
+    # Estilos de texto
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(200, 750, f"Factura de {factura.partner_id}")
+
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 720, f"Cliente: {factura.partner_id}")
+    pdf.drawString(50, 700, f"Número de factura: {factura.invoice_n}")
+    pdf.drawString(50, 680, f"Número de control: {factura.invoice_c}")
+    pdf.drawString(50, 660, f"Descuento: {factura.discount}%")
+    pdf.drawString(50, 640, f"Tipo de moneda: {factura.currency_id}")
+    pdf.drawString(50, 620, f"Nota pública: {factura.pub_note}")
+    pdf.drawString(50, 600, f"Fecha de la factura: {factura.invoice_d}")
+
+    # Datos de los productos en tabla
+    data = [["Producto", "Precio", "Cantidad", "IVA", "Total"]]
+    
+    for product in factura.get_factura_transaction():
+        data.append([
+            product.product_id,
+            f"{product.price} bs",
+            product.qty,
+            f"{product.vat_rate}%",
+            f"{product.calcular_total()} bs"
+        ])
+
+    table = Table(data, colWidths=[150, 80, 80, 80, 80])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # Posicionar la tabla
+    table.wrapOn(pdf, 50, 500)
+    table.drawOn(pdf, 50, 550)
+
+    # Finalizar el PDF
+    pdf.showPage()
+    pdf.save()
+
+    return response
+
+
     #generar Excel
 from openpyxl import Workbook
 from openpyxl.styles import Alignment,Border,Font,PatternFill,Side
