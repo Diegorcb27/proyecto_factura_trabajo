@@ -390,64 +390,158 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
 from django.http import HttpResponse
+from reportlab.lib.units import inch
+
+# def generate_pdf(request, pk):
+#     # Obtener datos de la factura
+#     factura = Facturas.objects.get(pk=pk)
+
+#     # Crear respuesta HTTP para el PDF
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
+
+#     # Crear el lienzo del PDF
+#     pdf = canvas.Canvas(response, pagesize=letter)
+#     pdf.setTitle(f"Factura de {factura.partner_id}")
+
+#     # Estilos de texto
+#     pdf.setFont("Helvetica-Bold", 16)
+#     pdf.drawString(200, 750, f"Factura de {factura.partner_id}")
+
+#     pdf.setFont("Helvetica", 12)
+#     pdf.drawString(50, 720, f"Cliente: {factura.partner_id}")
+#     pdf.drawString(50, 700, f"Número de factura: {factura.invoice_n}")
+#     pdf.drawString(50, 680, f"Número de control: {factura.invoice_c}")
+#     pdf.drawString(50, 660, f"Descuento: {factura.discount}%")
+#     pdf.drawString(50, 640, f"Tipo de moneda: {factura.currency_id}")
+#     pdf.drawString(50, 620, f"Nota pública: {factura.pub_note}")
+#     pdf.drawString(50, 600, f"Fecha de la factura: {factura.invoice_d}")
+
+#     # Datos de los productos en tabla
+#     data = [["Producto", "Precio", "Cantidad", "IVA", "Total"]]
+    
+#     for product in factura.get_factura_transaction():
+#         data.append([
+#             product.product_id,
+#             f"{product.price} bs",
+#             product.qty,
+#             f"{product.vat_rate}%",
+#             f"{product.calcular_total()} bs"
+#         ])
+
+#     table = Table(data, colWidths=[150, 80, 80, 80, 80])
+#     table.setStyle(TableStyle([
+#         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+#         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+#     ]))
+
+#     # Posicionar la tabla
+#     table.wrapOn(pdf, 50, 500)
+#     table.drawOn(pdf, 50, 550)
+
+#     # Finalizar el PDF
+#     pdf.showPage()
+#     pdf.save()
+
+#     return response
+
+# MODELO FACTURA 1
 
 def generate_pdf(request, pk):
-    # Obtener datos de la factura
     factura = Facturas.objects.get(pk=pk)
+    
+    def balance_subtotal(factura):
+        subtotal = 0
+        for transaction in factura.get_factura_transaction():
+            subtotal += transaction.calcular_subtotal()
+        return subtotal
+    
+    def balance_total(factura):
+        total = 0
+        for transaction in factura.get_factura_transaction():
+            total += transaction.calcular_total()
+        return total
+    
 
-    # Crear respuesta HTTP para el PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
-
-    # Crear el lienzo del PDF
     pdf = canvas.Canvas(response, pagesize=letter)
-    pdf.setTitle(f"Factura de {factura.partner_id}")
+    width, height = letter
 
-    # Estilos de texto
-    pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(200, 750, f"Factura de {factura.partner_id}")
-
+    # Encabezado
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(50, 750, "Cliente:")
     pdf.setFont("Helvetica", 12)
-    pdf.drawString(50, 720, f"Cliente: {factura.partner_id}")
-    pdf.drawString(50, 700, f"Número de factura: {factura.invoice_n}")
-    pdf.drawString(50, 680, f"Número de control: {factura.invoice_c}")
-    pdf.drawString(50, 660, f"Descuento: {factura.discount}%")
-    pdf.drawString(50, 640, f"Tipo de moneda: {factura.currency_id}")
-    pdf.drawString(50, 620, f"Nota pública: {factura.pub_note}")
-    pdf.drawString(50, 600, f"Fecha de la factura: {factura.invoice_d}")
+    pdf.drawString(50, 738, str(factura.partner_id))
 
-    # Datos de los productos en tabla
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(50, 720, "RIF:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 708, str(factura.partner_id.tin))
+
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(50, 690, "Domicilio Fiscal:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 678, str(factura.partner_id.name))
+
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(50, 660, "Contactos:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 648, str(factura.partner_id.website))
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(400, 750, f"Factura N°: {factura.invoice_n}")
+    pdf.drawString(400, 735, f"Control N°: {factura.invoice_c}")
+    pdf.drawString(400, 720, f"Fecha: {factura.invoice_d.strftime('%d/%m/%Y')}")
+
+    # Tabla de productos
     data = [["Producto", "Precio", "Cantidad", "IVA", "Total"]]
-    
     for product in factura.get_factura_transaction():
-        data.append([
+       data.append([
             product.product_id,
             f"{product.price} bs",
             product.qty,
             f"{product.vat_rate}%",
-            f"{product.calcular_total()} bs"
+            f"{product.calcular_subtotal():.2f} bs",
+           
         ])
 
-    table = Table(data, colWidths=[150, 80, 80, 80, 80])
+    table = Table(data, colWidths=[60, 220, 50, 80, 80])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
     ]))
-
-    # Posicionar la tabla
     table.wrapOn(pdf, 50, 500)
     table.drawOn(pdf, 50, 550)
 
-    # Finalizar el PDF
+    # Totales
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(400, 480, f"SUB-TOTAL Bs: {balance_subtotal(factura):.2f}")
+    # pdf.drawString(400, 465, f"I.V.A. {factura.vat_rate}% Bs.: {factura.iva:.2f}")
+    pdf.drawString(400, 450, f"TOTAL A PAGAR Bs: {balance_total(factura):.2f}")
+
+    # Nota legal
+    pdf.setFont("Helvetica-Oblique", 9)
+    pdf.drawString(50, 400, "A los efectos de lo previsto en el Art. 25 de la ley de Impuesto al Valor Agregado,")
+    pdf.drawString(50, 387, f"para efecto de conversión se ha utilizado la tasa de cambio del BCV, el 13 de julio de 2023,")
+    pdf.drawString(50, 374, "Fuente: www.bcv.org.ve")
+
     pdf.showPage()
     pdf.save()
 
     return response
+
+# MODELO FACTURA 2
 
 
     #generar Excel

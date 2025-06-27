@@ -146,6 +146,13 @@ class  FacturasTransactions(models.Model): #krp_invoice_transactions
     currency_id = models.CharField(max_length=4)  # Identificador de moneda
     curr_rate = models.DecimalField(max_digits=9, decimal_places=5, default=0)  # Tasa de cambio con valor por defecto
     note = models.CharField(max_length=255, blank=True, null=True)  # Nota opcional
+    
+    def calcular_subtotal(self):
+        """
+        Calcula el subtotal de la transacción.
+        """
+        subtotal = self.price * self.qty
+        return subtotal
 
     def calcular_total(self):
         """
