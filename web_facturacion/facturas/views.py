@@ -1,89 +1,88 @@
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.detail import DetailView
-from django.views.generic.list import ListView
-from django.views.generic.base import TemplateView
-from .models import Facturas
-from .forms import Facturas_Form
-from django.urls import reverse_lazy
-from django.http import HttpResponse
-from django.template.loader import get_template
-from weasyprint import HTML
-from django.shortcuts import redirect
+# from django.views.generic.edit import CreateView, UpdateView, DeleteView
+# from django.views.generic.detail import DetailView
+# from django.views.generic.list import ListView
+# from django.views.generic.base import TemplateView
+# from .models import Facturas
+# from .forms import Facturas_Form
+# from django.urls import reverse_lazy
+# from django.http import HttpResponse
+# from django.template.loader import get_template
 
-#estas dos importaciones es para saber si el usuario es miembro del staff y evitarnos la condicion del mixin
-from django.contrib.admin.views.decorators import staff_member_required
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required #IMPORTANTE: me permite saber si el usuario se registro
+# from django.shortcuts import redirect
 
-# Create your views here.
+# #estas dos importaciones es para saber si el usuario es miembro del staff y evitarnos la condicion del mixin
+# from django.contrib.admin.views.decorators import staff_member_required
+# from django.utils.decorators import method_decorator
+# from django.contrib.auth.decorators import login_required #IMPORTANTE: me permite saber si el usuario se registro
+
+# # Create your views here.
 
 
-class StaffRequiredMixin(object): #Este mixin requerira que el usuario sea miembro del staff
-    @method_decorator(staff_member_required) #este decorador es para verificar si el usuario es staff o no
-    def dispatch(self, request, *args, **kwargs):
-        print(request.user)
-        # if not request.user.is_staff: #esto es para saber si el usuario ha iniciado sesion en el admin, si no ha iniciado te redirecciona al admin
-        #     return redirect(reverse_lazy("admin:login"))
-        return super(StaffRequiredMixin, self).dispatch(request, *args, **kwargs) #el dispatch procesa la peticiones al servidor
+# class StaffRequiredMixin(object): #Este mixin requerira que el usuario sea miembro del staff
+#     @method_decorator(staff_member_required) #este decorador es para verificar si el usuario es staff o no
+#     def dispatch(self, request, *args, **kwargs):
+#         print(request.user)
+#         # if not request.user.is_staff: #esto es para saber si el usuario ha iniciado sesion en el admin, si no ha iniciado te redirecciona al admin
+#         #     return redirect(reverse_lazy("admin:login"))
+#         return super(StaffRequiredMixin, self).dispatch(request, *args, **kwargs) #el dispatch procesa la peticiones al servidor
     
 
-@method_decorator(login_required, name='dispatch') #este decorador es para verificar si el usuario es staff y asi poder usar estas funcionalidades
-class FacturaCreateView(CreateView): #el staffRequiredMixin que le pasamos como parametro es para comprobar si el usuario ha iniciado sesion para poder usar el create, 
-    model = Facturas
-    form_class=Facturas_Form
-    # fields = ["descripcion", "total", "usuario"]
-    # success_url = reverse_lazy('facturas:facturas_list') #me redirecciona a la lista de las facturas
-    def get_success_url(self):
-        return reverse_lazy('facturas:facturas_list')
+# @method_decorator(login_required, name='dispatch') #este decorador es para verificar si el usuario es staff y asi poder usar estas funcionalidades
+# class FacturaCreateView(CreateView): #el staffRequiredMixin que le pasamos como parametro es para comprobar si el usuario ha iniciado sesion para poder usar el create, 
+#     model = Facturas
+#     form_class=Facturas_Form
+#     # fields = ["descripcion", "total", "usuario"]
+#     # success_url = reverse_lazy('facturas:facturas_list') #me redirecciona a la lista de las facturas
+#     def get_success_url(self):
+#         return reverse_lazy('facturas:facturas_list')
     
     
-@method_decorator(login_required, name='dispatch')
-class FacturaListView(ListView):
-    model=Facturas
-    context_object_name = 'factura_list'
-    template_name = 'factura_list.html'
-    paginate_by=5
+# @method_decorator(login_required, name='dispatch')
+# class FacturaListView(ListView):
+#     model=Facturas
+#     context_object_name = 'factura_list'
+#     template_name = 'factura_list.html'
+#     paginate_by=5
     
-    def get_queryset(self): #ordena la factura por numero de factura
-        return Facturas.objects.all().order_by('-invoice_n')
+#     def get_queryset(self): #ordena la factura por numero de factura
+#         return Facturas.objects.all().order_by('-invoice_n')
   
            
     
     
-@method_decorator(login_required, name='dispatch')
-class FacturaUpdateView(UpdateView):
-    model = Facturas
-    form_class=Facturas_Form
-    # fields = ["descripcion", "total"]
-    template_name_suffix = "_update_form"
+# @method_decorator(login_required, name='dispatch')
+# class FacturaUpdateView(UpdateView):
+#     model = Facturas
+#     form_class=Facturas_Form
+#     # fields = ["descripcion", "total"]
+#     template_name_suffix = "_update_form"
     
-    def get_success_url(self):
+#     def get_success_url(self):
       
-        return reverse_lazy('facturas:facturas_list')
+#         return reverse_lazy('facturas:facturas_list')
     
-@method_decorator(login_required, name='dispatch')
+# @method_decorator(login_required, name='dispatch')
 
-class FacturaDeleteView(DeleteView):
-    model = Facturas
-    success_url = reverse_lazy('facturas:facturas_list')
+# class FacturaDeleteView(DeleteView):
+#     model = Facturas
+#     success_url = reverse_lazy('facturas:facturas_list')
     
 
-class FacturaDetailView(DetailView):
-    model = Facturas
+# class FacturaDetailView(DetailView):
+#     model = Facturas
     
 
 
 
 #generar PDF
 
-from django.http import HttpResponse
-from django.template.loader import get_template
-from weasyprint import HTML
-from .models import Facturas
-from django.views.generic.list import ListView
-import tempfile
+# from django.http import HttpResponse
+# from django.template.loader import get_template
+# from .models import Facturas
+# from django.views.generic.list import ListView
+# import tempfile
 
-def generate_pdf(request, pk):
+# def generate_pdf(request, pk):
 #     factura = Factura.objects.get(pk=pk)
 #     template = get_template('facturas/factura_detail_pdf.html')
 #     context = {
@@ -110,29 +109,29 @@ def generate_pdf(request, pk):
     
     
     # try:
-        factura = Facturas.objects.get(pk=pk)
-        template = get_template('facturas/factura_detail_pdf.html')
-        context = {
-            "cliente": factura.cliente,
-            "numero_factura": factura.numero_factura,
-            "rif": factura.rif,
-            "domicilio": factura.domicilio_fiscal,
-            "telefono": factura.telefono,
-            "descripcion": factura.descripcion,
-            "forma_pago": factura.forma_pago,
-            "Importe": factura.importe,
-            "iva":factura.iva,
-            "total": factura.calcular_total_con_iva,
-            "id": factura.id,
+        # factura = Facturas.objects.get(pk=pk)
+        # template = get_template('facturas/factura_detail_pdf.html')
+        # context = {
+        #     "cliente": factura.cliente,
+        #     "numero_factura": factura.numero_factura,
+        #     "rif": factura.rif,
+        #     "domicilio": factura.domicilio_fiscal,
+        #     "telefono": factura.telefono,
+        #     "descripcion": factura.descripcion,
+        #     "forma_pago": factura.forma_pago,
+        #     "Importe": factura.importe,
+        #     "iva":factura.iva,
+        #     "total": factura.calcular_total_con_iva,
+        #     "id": factura.id,
             
             
-        }
-        html_template = template.render(context)
-        pdf_file = HTML(string=html_template).write_pdf(target=f"factura_{pk}.pdf")
-        response = HttpResponse(pdf_file, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="output.pdf"'
-        print(pk)
-        return response
+        # }
+        # html_template = template.render(context)
+        # pdf_file = HTML(string=html_template).write_pdf(target=f"factura_{pk}.pdf")
+        # response = HttpResponse(pdf_file, content_type='application/pdf')
+        # response['Content-Disposition'] = 'attachment; filename="output.pdf"'
+        # print(pk)
+        # return response
     
     # f' attachment; filename="factura_{pk}.pdf"'
     # except Exception as e:
