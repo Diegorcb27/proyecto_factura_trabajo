@@ -1044,13 +1044,38 @@ def generate_pdf(request, pk):
     pdf.drawString(150, 160, tasa_text)
     
     # Nota legal
+    # pdf.setFont("Helvetica", 9)
+    # nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor,"
+    # pdf.drawString(40, y - 35, nota_text)
+    # nota_text2 = "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa"
+    # pdf.drawString(40, y - 45, nota_text2)
+    # nota_text3 = "de cambio establecida por el BCV en fecha 17/05/2022, fuente www.bcv.org.ve"
+    # pdf.drawString(40, y - 55, nota_text3)
+    
+    # Nota legal
     pdf.setFont("Helvetica", 9)
-    nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor"
-    pdf.drawString(40, y - 35, nota_text)
+    nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor,"
     nota_text2 = "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa"
-    pdf.drawString(40, y - 45, nota_text2)
     nota_text3 = "de cambio establecida por el BCV en fecha 17/05/2022, fuente www.bcv.org.ve"
-    pdf.drawString(40, y - 55, nota_text3)
+
+    x_text = 39
+    y_base = 171  - 35  # punto superior del primer texto
+    line_height = 10
+
+    # Dibujar los textos
+    pdf.drawString(x_text, y_base, nota_text)
+    pdf.drawString(x_text, y_base - line_height, nota_text2)
+    pdf.drawString(x_text, y_base - 2 * line_height, nota_text3)
+
+    # Calcular dimensiones del rectángulo
+    max_width = max(
+        pdf.stringWidth(nota_text, "Helvetica", 9),
+        pdf.stringWidth(nota_text2, "Helvetica", 9),
+        pdf.stringWidth(nota_text3, "Helvetica", 9)
+    )
+    rect_height = 3 * line_height + 24  # altura total con margen interno
+    pdf.rect(x_text - 4, y_base - rect_height + 14, max_width + 42, rect_height, stroke=1, fill=0)
+
     
     # Resumen en bolívares
     summary_bs_data = [
