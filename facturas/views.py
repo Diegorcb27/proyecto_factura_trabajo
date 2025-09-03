@@ -392,200 +392,141 @@ from reportlab.platypus import Table, TableStyle
 from django.http import HttpResponse
 from reportlab.lib.units import mm
 from decimal import Decimal
-# def generate_pdf(request, pk):
-#     # Obtener datos de la factura
-#     factura = Facturas.objects.get(pk=pk)
 
-#     # Crear respuesta HTTP para el PDF
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
-
-#     # Crear el lienzo del PDF
-#     pdf = canvas.Canvas(response, pagesize=letter)
-#     pdf.setTitle(f"Factura de {factura.partner_id}")
-
-#     # Estilos de texto
-#     pdf.setFont("Helvetica-Bold", 16)
-#     pdf.drawString(200, 750, f"Factura de {factura.partner_id}")
-
-#     pdf.setFont("Helvetica", 12)
-#     pdf.drawString(50, 720, f"Cliente: {factura.partner_id}")
-#     pdf.drawString(50, 700, f"Número de factura: {factura.invoice_n}")
-#     pdf.drawString(50, 680, f"Número de control: {factura.invoice_c}")
-#     pdf.drawString(50, 660, f"Descuento: {factura.discount}%")
-#     pdf.drawString(50, 640, f"Tipo de moneda: {factura.currency_id}")
-#     pdf.drawString(50, 620, f"Nota pública: {factura.pub_note}")
-#     pdf.drawString(50, 600, f"Fecha de la factura: {factura.invoice_d}")
-
-#     # Datos de los productos en tabla
-#     data = [["Producto", "Precio", "Cantidad", "IVA", "Total"]]
-    
-#     for product in factura.get_factura_transaction():
-#         data.append([
-#             product.product_id,
-#             f"{product.price} bs",
-#             product.qty,
-#             f"{product.vat_rate}%",
-#             f"{product.calcular_total()} bs"
-#         ])
-
-#     table = Table(data, colWidths=[150, 80, 80, 80, 80])
-#     table.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-#         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-#         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-#         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-#     ]))
-
-#     # Posicionar la tabla
-#     table.wrapOn(pdf, 50, 500)
-#     table.drawOn(pdf, 50, 550)
-
-#     # Finalizar el PDF
-#     pdf.showPage()
-#     pdf.save()
-
-#     return response
 
 # MODELO FACTURA 1
 
-# def generate_pdf(request, pk):
-#     factura = Facturas.objects.get(pk=pk)
+def generate_pdf(request, pk):
+    factura = Facturas.objects.get(pk=pk)
     
-#     def balance_subtotal(factura):
-#         subtotal = 0
-#         for transaction in factura.get_factura_transaction():
-#             subtotal += transaction.calcular_subtotal()
-#         return subtotal
+    def balance_subtotal(factura):
+        subtotal = 0
+        for transaction in factura.get_factura_transaction():
+            subtotal += transaction.calcular_subtotal()
+        return subtotal
     
-#     def balance_total(factura):
-#         total = 0
-#         for transaction in factura.get_factura_transaction():
-#             total += transaction.calcular_total()
-#         return total
+    def balance_total(factura):
+        total = 0
+        for transaction in factura.get_factura_transaction():
+            total += transaction.calcular_total()
+        return total
     
 
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
-#     pdf = canvas.Canvas(response, pagesize=letter)
-#     width, height = letter
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
+    pdf = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
 
-#     # Encabezado
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(20, 670, "Cliente:")
-#     pdf.setFont("Helvetica", 12)
-#     pdf.drawString(20, 658, str(factura.partner_id))
+    # Encabezado
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(20, 670, "Cliente:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(20, 658, str(factura.partner_id))
 
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(20, 640, "RIF:")
-#     pdf.setFont("Helvetica", 12)
-#     pdf.drawString(20, 628, str(factura.partner_id.tin))
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(20, 640, "RIF:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(20, 628, str(factura.partner_id.tin))
 
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(20, 610, "Domicilio Fiscal:")
-#     pdf.setFont("Helvetica", 12)
-#     pdf.drawString(20, 598, str(factura.partner_id.name))
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(20, 610, "Domicilio Fiscal:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(20, 598, str(factura.partner_id.name))
 
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(20, 580, "Contactos:")
-#     pdf.setFont("Helvetica", 12)
-#     pdf.drawString(20, 568, str(factura.partner_id.website))
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(20, 580, "Contactos:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(20, 568, str(factura.partner_id.website))
 
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(480, 670, f"Factura N°: {factura.invoice_n}")
-#     pdf.drawString(480, 655, f"Control N°: {factura.invoice_c}")
-#     pdf.drawString(480, 640, f"Fecha: {factura.invoice_d.strftime('%d/%m/%Y')}")
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(480, 670, f"Factura N°: {factura.invoice_n}")
+    pdf.drawString(480, 655, f"Control N°: {factura.invoice_c}")
+    pdf.drawString(480, 640, f"Fecha: {factura.invoice_d.strftime('%d/%m/%Y')}")
 
-#     # Tabla de productos
-#     data = [["Producto", "PRECIO", "CANTIDAD", "TOTAL"]]
-#     for product in factura.get_factura_transaction():
-#        data.append([
-#             product.product_id,
-#             f"{product.price} $",
-#             product.qty,
-#             f"{product.calcular_subtotal():.2f} $",
+    # Tabla de productos
+    data = [["Producto", "PRECIO", "CANTIDAD", "TOTAL"]]
+    for product in factura.get_factura_transaction():
+       data.append([
+            product.product_id,
+            f"{product.price} $",
+            product.qty,
+            f"{product.calcular_subtotal():.2f} $",
            
-#         ])
+        ])
 
-#     # 📐 Ancho total para centrar
-#     colWidths = [200, 130, 130, 115]  # Total: 595
-#     # x_position = (page_width - total_width) / 2  # 42.5 → puedes redondear a 42
-#     x_position = 20
-#     y_position = 480
+    # 📐 Ancho total para centrar
+    colWidths = [200, 130, 130, 115]  # Total: 595
+    # x_position = (page_width - total_width) / 2  # 42.5 → puedes redondear a 42
+    x_position = 20
+    y_position = 480
 
-#         # 🧾 Construcción y estilo de tabla
-#     table = Table(data, colWidths=colWidths)
-#     table.setStyle(TableStyle([
-#             ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-#             ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-#             ('FONTSIZE', (0, 0), (-1, 0), 9),  # Tamaño de fuente más pequeño en el encabezado
-#             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),      # Negrita
-#             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),                 # Centrado horizontal cabecera
-#             ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),                # Centrado vertical cabecera
-#             ('BOX', (0, 0), (-1, 0), 0.5, colors.black),          # Bordes externos cabecera
-#             ('GRID', (0, 0), (-1, 0), 0.5, colors.black),         # Bordes internos cabecera
+        # 🧾 Construcción y estilo de tabla
+    table = Table(data, colWidths=colWidths)
+    table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),  # Tamaño de fuente más pequeño en el encabezado
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),      # Negrita
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),                 # Centrado horizontal cabecera
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),                # Centrado vertical cabecera
+            ('BOX', (0, 0), (-1, 0), 0.5, colors.black),          # Bordes externos cabecera
+            ('GRID', (0, 0), (-1, 0), 0.5, colors.black),         # Bordes internos cabecera
 
-#             ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),                 # Alinear columnas numéricas
-#             ('VALIGN', (0, 1), (-1, -1), 'TOP'),                  # Alineación vertical en datos
-#             ('BACKGROUND', (0, 1), (-1, -1), colors.white),       # Fondo blanco filas de datos
-#         ]))
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),                 # Alinear columnas numéricas
+            ('VALIGN', (0, 1), (-1, -1), 'TOP'),                  # Alineación vertical en datos
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),       # Fondo blanco filas de datos
+        ]))
 
-#         # 📍 Dibujar tabla centrada
-#     table.wrapOn(pdf, x_position, 500)
-#     table.drawOn(pdf, x_position, y_position)
+        # 📍 Dibujar tabla centrada
+    table.wrapOn(pdf, x_position, 500)
+    table.drawOn(pdf, x_position, y_position)
 
-#         # 🔢 Totales alineados con la tabla
-#     subtotal = balance_subtotal(factura)
-#     total = balance_total(factura)
-#     iva = total - subtotal
+        # 🔢 Totales alineados con la tabla
+    subtotal = balance_subtotal(factura)
+    total = balance_total(factura)
+    iva = total - subtotal
 
-#     pdf.setFont("Helvetica", 10)
-#     pdf.drawString(420, 280, f"SUB-TOTAL USD:")
-#     pdf.drawString(420, 265, f"I.V.A. % USD:")
-#     pdf.drawString(420, 250, f"TOTAL A PAGAR USD:")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(420, 280, f"SUB-TOTAL USD:")
+    pdf.drawString(420, 265, f"I.V.A. % USD:")
+    pdf.drawString(420, 250, f"TOTAL A PAGAR USD:")
 
     
-#     # 🔢 Valores en fuente regular
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(550, 280, f"{subtotal:.2f}")
-#     pdf.drawString(550, 265, f"{iva:.2f}")
-#     pdf.drawString(550, 250, f"{total:.2f}")
+    # 🔢 Valores en fuente regular
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(550, 280, f"{subtotal:.2f}")
+    pdf.drawString(550, 265, f"{iva:.2f}")
+    pdf.drawString(550, 250, f"{total:.2f}")
  
 
-#     # Nota legal
-#     pdf.setFont("Helvetica-Oblique", 9)
-#     pdf.drawString(50, 250, "A los efectos de lo previsto en el Art. 25 de la ley de Impuesto al Valor Agregado,")
-#     pdf.drawString(50, 237, f"para efecto de conversión se ha utilizado la tasa de cambio del BCV, el 13 de julio de 2023,")
-#     pdf.drawString(50, 224, "Fuente: www.bcv.org.ve")
+    # Nota legal
+    pdf.setFont("Helvetica-Oblique", 9)
+    pdf.drawString(50, 250, "A los efectos de lo previsto en el Art. 25 de la ley de Impuesto al Valor Agregado,")
+    pdf.drawString(50, 237, f"para efecto de conversión se ha utilizado la tasa de cambio del BCV, el 13 de julio de 2023,")
+    pdf.drawString(50, 224, "Fuente: www.bcv.org.ve")
 
-#     pdf.showPage()
-#     pdf.save()
+    pdf.showPage()
+    pdf.save()
 
-#     return response
+    return response
 
-# MODELO FACTURA 2
+#MODELO FACTURA 2
 # def generate_pdf(request, pk):
 #     factura = Facturas.objects.get(pk=pk)
-    
-#     def balance_subtotal(factura):
-#         subtotal = 0
-#         for transaction in factura.get_factura_transaction():
-#             subtotal += transaction.calcular_subtotal()
-#         return subtotal
-    
-#     def balance_total(factura):
-#         total = 0
-#         for transaction in factura.get_factura_transaction():
-#             total += transaction.calcular_total()
-#         return total
-    
+#     verde_73A243 = colors.Color(red=170/255, green=200/255, blue=130/255)
 
+#     # Funciones auxiliares para cálculo
+#     def balance_subtotal(factura):
+#         return sum(tx.calcular_subtotal() for tx in factura.get_factura_transaction())
+
+#     def balance_total(factura):
+#         return sum(tx.calcular_total() for tx in factura.get_factura_transaction())
+
+#     # Preparar respuesta PDF
 #     response = HttpResponse(content_type='application/pdf')
 #     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
 #     pdf = canvas.Canvas(response, pagesize=letter)
+#     ancho, alto = letter
     
 
 #     # Encabezado
@@ -658,89 +599,131 @@ from decimal import Decimal
 #             ('VALIGN', (0, 1), (-1, -1), 'TOP'),                  # Alineación vertical en datos
 #             ('BACKGROUND', (0, 1), (-1, -1), colors.white),       # Fondo blanco filas de datos
 #         ]))
+    
+#      #4. CÁLCULOS ESPECÍFICOS PARA EL RESUMEN
+#     # Usar datos reales o de ejemplo
+#     if factura.get_factura_transaction().exists():
+#         subtotal_usd = balance_subtotal(factura)
+#         iva_usd = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
+#         total_usd = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
+#     else:
+#         subtotal_usd = Decimal("3480.00")
+#         iva_usd = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
+#         total_usd = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
+    
+#     tasa = Decimal("4.7848")
+#     subtotal_bs = (subtotal_usd * tasa).quantize(Decimal("0.01"))
+#     iva_bs = (iva_usd * tasa).quantize(Decimal("0.01"))
+#     total_bs = (total_usd * tasa).quantize(Decimal("0.01"))
+
+#     # 5. DIBUJAR EL RECUADRO DE RESUMEN (ESTILO TABLA)
+#     # Posicionar el recuadro en la parte inferior derecha
+#     x = 405  # Posición X (desde la izquierda)
+#     y = 171  # Posición Y (desde abajo)
+    
+#     # Crear tabla para el resumen
+#     summary_data = [
+#         ["SUB-TOTAL", f"${subtotal_usd:,.2f}".replace(",", ".")],
+#         ["I.V.A. 16%", f"${iva_usd:,.2f}".replace(",", ".")],
+#         ["TOTAL A PAGAR", f"${total_usd:,.2f}".replace(",", ".")],
+#     ]
+    
+#     summary_table = Table(summary_data, colWidths=[80, 106])
+#     summary_table.setStyle(TableStyle([
+#         ('FONT', (0, 0), (-1, -1), 'Helvetica'),
+#         ('BACKGROUND', (0, 0), (0, 2), verde_73A243),
+#         ('FONTSIZE', (0, 0), (-1, -1), 8.5),
+#         ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+#         ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+#         ('FONTNAME', (0, 2), (1, 2), 'Helvetica-Bold'),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+#         ('LINEABOVE', (0, 2), (1, 2), 1, colors.black),
+#     ]))
+    
+#     summary_table.wrapOn(pdf, x, y)
+#     summary_table.drawOn(pdf, x, y)
+    
+#        # Información de tasa de cambio ENCERRADA EN UN RECTÁNGULO
+#     tasa_text = f"Tasa de cambio establecida por el Banco Central de Venezuela BCV (Bs/Dólar {tasa:.4f})"
+#     pdf.setFont("Helvetica", 9)
+    
+#     # Calcular el ancho del texto para dimensionar el rectángulo
+#     text_width = pdf.stringWidth(tasa_text, "Helvetica", 9)
+    
+#     # Dibujar rectángulo alrededor del texto
+#     rect_x =20  # Ajustar posición X con margen
+#     rect_y = 162 - 12  # Ajustar posición Y con margen
+#     rect_width = text_width + 223  # Ancho del texto + margen
+#     rect_height = 21  # Alto del rectángulo
+    
+#     pdf.rect(rect_x, rect_y, rect_width, rect_height)
+    
+#     # Dibujar el texto centrado dentro del rectángulo
+#     pdf.drawString(140, 160, tasa_text)
+    
+#     # Nota legal
+#     pdf.setFont("Helvetica", 9)
+#     nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor,"
+#     nota_text2 = "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa"
+#     nota_text3 = "de cambio establecida por el BCV en fecha 17/05/2022, fuente www.bcv.org.ve"
+
+#     x_text = 24
+#     y_base = 171  - 35  # punto superior del primer texto
+#     line_height = 10
+
+#     # Dibujar los textos
+#     pdf.drawString(x_text, y_base, nota_text)
+#     pdf.drawString(x_text, y_base - line_height, nota_text2)
+#     pdf.drawString(x_text, y_base - 2 * line_height, nota_text3)
+
+#     # Calcular dimensiones del rectángulo
+#     max_width = max(
+#         pdf.stringWidth(nota_text, "Helvetica", 9),
+#         pdf.stringWidth(nota_text2, "Helvetica", 9),
+#         pdf.stringWidth(nota_text3, "Helvetica", 9)
+#     )
+#     rect_height = 3 * line_height + 24  # altura total con margen interno
+#     pdf.rect(x_text - 4, y_base - rect_height + 14, max_width + 42, rect_height, stroke=1, fill=0)
+
+    
+#     # Resumen en bolívares
+#     summary_bs_data = [
+#         ["SUB-TOTAL", f"Bs. {subtotal_bs:,.2f}".replace(",", ".")],
+#         ["I.V.A. 16%", f"Bs. {iva_bs:,.2f}".replace(",", ".")],
+#         ["TOTAL A PAGAR", f"Bs. {total_bs:,.2f}".replace(",", ".")],
+#     ]
+    
+#     summary_bs_table = Table(summary_bs_data, colWidths=[80, 106])
+#     summary_bs_table.setStyle(TableStyle([
+#         ('FONT', (0, 0), (-1, -1), 'Helvetica'),
+#         ('BACKGROUND', (0, 0), (0, 2), verde_73A243),   
+#         ('FONTSIZE', (0, 0), (-1, -1), 8.5),
+#         ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+#         ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+#         ('FONTNAME', (0, 2), (1, 2), 'Helvetica-Bold'), 
+#         ('LINEABOVE', (0, 2), (1, 2), 1, colors.black),
+#     ]))
+    
+#     summary_bs_table.wrapOn(pdf, x, y - 75)
+#     summary_bs_table.drawOn(pdf, x, y - 75)
+    
+#     #Dibujar rectangulo superior izquierdo
+    
+#     rect2_x = 20
+#     rect2_y = 162 - 12
+#     rect2_width = text_width + 223
+#     rect2_height = 75
+    
+#     pdf.setStrokeColor(colors.black)
+#     pdf.setLineWidth(1)
+#     pdf.rect(rect2_x, rect2_y, rect2_width, rect2_height, stroke=1, fill=0)
 
 #         # 📍 Dibujar tabla centrada
 #     table.wrapOn(pdf, x_position, 500)
 #     table.drawOn(pdf, x_position, y_position)
     
-#         # Crear el PDF
-#     ancho, alto = letter
-    
-#     # Calcular valores
-#     subtotal = balance_subtotal(factura)
-#     total = balance_total(factura)
-#     iva = total - subtotal
-#     tasa = 150.00  # Ejemplo de tasa de cambio, reemplaza con el valor real
-    
-#     # Calcular valores en bolívares
-#     subtotal_bs = subtotal * Decimal(str(tasa))
-#     iva_bs = iva *  Decimal(str(tasa))
-#     total_bs = total *  Decimal(str(tasa))
-
-#         # 🔢 Totales alineados con la tabla
-#     subtotal = balance_subtotal(factura)
-#     total = balance_total(factura)
-#     iva = total - subtotal
-
-#      # Configurar coordenadas
-#     x_col1 = 50 * mm  # Primera columna
-#     x_col2 = 130 * mm  # Segunda columna
-    
-#     y_start = 150 * mm  # Posición inicial
-#     line_height = 7 * mm  # Altura entre líneas
-    
-#     # Dibujar recuadro
-#     pdf.rect(x_col1 - 2*mm, y_start - 5*mm, 80*mm, 45*mm, stroke=1, fill=0)
-    
-#     # Título
-#     pdf.setFont("Helvetica-Bold", 12)
-#     pdf.drawString(x_col1, y_start, "RESUMEN DE PAGO")
-    
-#     # Línea separadora
-#     pdf.line(x_col1, y_start - 2*mm, x_col1 + 70*mm, y_start - 2*mm)
-    
-#     # Valores en USD
-#     y = y_start - line_height
-#     pdf.setFont("Helvetica", 10)
-#     pdf.drawString(x_col1, y, "SUB-TOTAL USD:")
-#     pdf.drawString(x_col2, y, f"${subtotal:,.2f}".replace(",", "."))
-    
-#     y -= line_height
-#     pdf.drawString(x_col1, y, "I.V.A. 16% USD:")
-#     pdf.drawString(x_col2, y, f"${iva:,.2f}".replace(",", "."))
-    
-#     y -= line_height
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(x_col1, y, "TOTAL A PAGAR USD:")
-#     pdf.drawString(x_col2, y, f"${total:,.2f}".replace(",", "."))
-    
-#     # Información de tasa de cambio
-#     y -= line_height * 1.5
-#     pdf.setFont("Helvetica-Oblique", 8)
-#     pdf.drawString(x_col1, y, f"Tasa de cambio BCV (Bs/Dólar {tasa:,.4f})".replace(",", "."))
-    
-#     # Valores en Bs.
-#     y -= line_height * 1.5
-#     pdf.setFont("Helvetica", 10)
-#     pdf.drawString(x_col1, y, "SUB-TOTAL Bs.:")
-#     pdf.drawString(x_col2, y, f"{subtotal_bs:,.2f}".replace(",", "."))
-    
-#     y -= line_height
-#     pdf.drawString(x_col1, y, "I.V.A. 16% Bs.:")
-#     pdf.drawString(x_col2, y, f"{iva_bs:,.2f}".replace(",", "."))
-    
-#     y -= line_height
-#     pdf.setFont("Helvetica-Bold", 10)
-#     pdf.drawString(x_col1, y, "TOTAL A PAGAR Bs.:")
-#     pdf.drawString(x_col2, y, f"{total_bs:,.2f}".replace(",", "."))
-    
-#     # Nota legal
-#     y_nota = 50 * mm
-#     pdf.setFont("Helvetica-Oblique", 9)
-#     pdf.drawString(x_col1, y_nota, "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor")
-#     pdf.drawString(x_col1, y_nota - line_height/2, "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa")
-#     pdf.drawString(x_col1, y_nota - line_height, f"de cambio establecida por el BCV en fecha, fuente www.bcv.org.ve")
-    
+      
 #     # Guardar PDF
 
 #     pdf.showPage()
@@ -748,361 +731,7 @@ from decimal import Decimal
 
 #     return response
 
-# from decimal import Decimal
-# from reportlab.lib import colors
-# from reportlab.lib.pagesizes import letter
-# from reportlab.lib.units import mm
-# from reportlab.platypus import Table, TableStyle
-# from reportlab.pdfgen import canvas
-# from django.http import HttpResponse
 
-# def generate_pdf(request, pk):
-#     factura = Facturas.objects.get(pk=pk)
-
-#     # Funciones auxiliares para cálculo
-#     def balance_subtotal(factura):
-#         return sum(tx.calcular_subtotal() for tx in factura.get_factura_transaction())
-
-#     def balance_total(factura):
-#         return sum(tx.calcular_total() for tx in factura.get_factura_transaction())
-
-#     # Preparar respuesta PDF
-#     response = HttpResponse(content_type='application/pdf') 
-#     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
-#     pdf = canvas.Canvas(response, pagesize=letter)
-#     ancho, alto = letter
-
-#     # 1. ENCABEZADO
-#     pdf.setFont("Helvetica-Bold", 12)
-#     pdf.drawString(40, 750, "ASAP SERVICIOS, C.A.")
-#     pdf.setFont("Helvetica", 10)
-#     pdf.drawString(40, 735, "RIF: J-103997390")
-#     pdf.drawString(40, 720, "Av. Francisco de Miranda, Edif. Parque Cristal Torre Oeste")
-#     pdf.drawString(40, 705, "Piso 12, Oficina 12-B, Los Palos Grandes, Caracas, 1060")
-#     pdf.drawString(40, 690, "Tel: 0212-2867222 / 0226-7332853861")
-
-#     pdf.setFont("Helvetica-Bold", 12)
-#     pdf.drawString(350, 750, f"Factura No: {factura.invoice_n or '00008'}")
-#     pdf.drawString(350, 735, f"Fecha: {factura.invoice_d.strftime('%d/%m/%Y') or '17/05/2022'}")
-
-#     # 2. DATOS DEL CLIENTE
-#     pdf.setFont("Helvetica-Bold", 12)
-#     pdf.drawString(40, 660, "CLIENTE:")
-#     pdf.setFont("Helvetica", 10)
-#     pdf.drawString(110, 660, factura.partner_id.name or "ASAP SERVICIOS, C.A.")
-#     pdf.drawString(110, 645, f"RIF: {factura.partner_id.tin or 'J103997390'}")
-  
-
-#     # 3. TABLA DE ITEMS
-#     items = [
-#         ["Item", "Descripción", "Cantidad", "Precio Unit.", "Total"],
-#     ]
-#     # Ejemplo de hardcode si no vienes de BD:
-#     items_data = [
-#         ["01", "Mantenimiento anual (01/04/2022 al 31/03/2023) sistema STIPENDA para 300 col.", "1", "$3.480,00", "$3.480,00"],
-#         ["02", "Bloque de horas de Consultoría, Asesoría o Desarrollos",           "1", "$1.000,00", "$1.000,00"],
-#         ["03", "Bloque de horas de Consultoría, Asesoría o Desarrollos",           "1", "$1.000,00", "$1.000,00"],
-#         ["04", "Bloque de horas de Consultoría, Asesoría o Desarrollos",           "1", "$1.000,00", "$1.000,00"],
-#     ]
-#     for row in items_data:
-#         items.append(row)
-
-#     colWidths = [30*mm, 100*mm, 25*mm, 30*mm, 30*mm]
-#     table = Table(items, colWidths=colWidths)
-#     table.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-#         ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
-#         ('ALIGN',      (2, 1), (-1, -1), 'CENTER'),
-#         ('GRID',       (0, 0), (-1, -1), 0.5, colors.black),
-#         ('FONTSIZE',   (0, 0), (-1, -1), 9),
-#         ('VALIGN',     (0, 0), (-1, -1), 'MIDDLE'),
-#     ]))
-#     table.wrapOn(pdf, 40, 500)
-#     table.drawOn(pdf, 40, 480)
-
-#     # 4. RESUMEN DE PAGOS
-   
-# # 4. CÁLCULOS ESPECÍFICOS PARA EL RESUMEN
-#     subtotal_usd = Decimal("3480.00")
-#     iva_usd      = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
-#     total_usd    = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
-#     tasa         = Decimal("4.7848")
-
-#     subtotal_bs  = (subtotal_usd * tasa).quantize(Decimal("0.01"))
-#     iva_bs       = (iva_usd      * tasa).quantize(Decimal("0.01"))
-#     total_bs     = (total_usd    * tasa).quantize(Decimal("0.01"))
-
-#     # 5. DIBUJAR EL RECUADRO DE RESUMEN
-#     x = 40 * mm
-#     y_top = 160 * mm       # coordenada Y del tope del recuadro
-#     box_w = 80 * mm
-#     box_h = 60 * mm
-
-#     # rectángulo externo
-#     pdf.rect(x, y_top - box_h, box_w, box_h, stroke=1, fill=0)
-
-
-#     # líneas de valores
-#     pdf.setFont("Helvetica", 9)
-#     line_gap = 6 * mm
-#     current_y = y_top - 15 * mm
-
-#     # USD
-#     pdf.drawString(x + 3*mm, current_y, "SUB-TOTAL:")
-#     pdf.drawRightString(x + box_w - 3*mm, current_y, f"${subtotal_usd:,.2f}".replace(",", "."))
-
-#     current_y -= line_gap
-#     pdf.drawString(x + 3*mm, current_y, "I.V.A. 16%:")
-#     pdf.drawRightString(x + box_w - 3*mm, current_y, f"${iva_usd:,.2f}".replace(",", "."))
-
-#     current_y -= line_gap
-#     pdf.setFont("Helvetica-Bold", 9)
-#     pdf.drawString(x + 3*mm, current_y, "TOTAL A PAGAR:")
-#     pdf.drawRightString(x + box_w - 3*mm, current_y, f"${total_usd:,.2f}".replace(",", "."))
-
-#     # tipo de cambio
-#     current_y -= (line_gap + 2*mm)
-#     pdf.setFont("Helvetica-Oblique", 7)
-#     pdf.drawString(x + 3*mm, current_y, f"Tasa BCV (17/05/2022): Bs. {tasa:.4f}")
-
-#     # Bs
-#     pdf.setFont("Helvetica", 9)
-#     current_y -= (line_gap + 1*mm)
-#     pdf.drawString(x + 3*mm, current_y, "SUB-TOTAL Bs.:")
-#     pdf.drawRightString(x + box_w - 3*mm, current_y, f"{subtotal_bs:,.2f}".replace(",", "."))
-
-#     current_y -= line_gap
-#     pdf.drawString(x + 3*mm, current_y, "I.V.A. 16% Bs.:")
-#     pdf.drawRightString(x + box_w - 3*mm, current_y, f"{iva_bs:,.2f}".replace(",", "."))
-
-#     current_y -= line_gap
-#     pdf.setFont("Helvetica-Bold", 9)
-#     pdf.drawString(x + 3*mm, current_y, "TOTAL A PAGAR Bs.:")
-#     pdf.drawRightString(x + box_w - 3*mm, current_y, f"{total_bs:,.2f}".replace(",", "."))
-
-#     # nota legal
-#     nota_y = y_top - box_h + 5*mm
-#     pdf.setFont("Helvetica-Oblique", 7)
-#     pdf.drawString(x + 3*mm, nota_y,   "A los solos efectos de lo previsto en el Art. 25 de la ley de IVA,")
-#     pdf.drawString(x + 3*mm, nota_y - 3*mm,
-#                 "se expresan los montos en Bolívares según la tasa del BCV del 17/05/2022.")
-
-
-
-#         # Finalizar y devolver
-#     pdf.showPage()
-#     pdf.save()
-#     return response
-
-#MODELO FACTURA 2 DEEP SEEK
-from decimal import Decimal
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import mm
-from reportlab.platypus import Table, TableStyle
-from reportlab.pdfgen import canvas
-from django.http import HttpResponse
-from reportlab.lib import colors
-
-def generate_pdf(request, pk):
-    factura = Facturas.objects.get(pk=pk)
-    verde_73A243 = colors.Color(red=170/255, green=200/255, blue=130/255)
-
-    # Funciones auxiliares para cálculo
-    def balance_subtotal(factura):
-        return sum(tx.calcular_subtotal() for tx in factura.get_factura_transaction())
-
-    def balance_total(factura):
-        return sum(tx.calcular_total() for tx in factura.get_factura_transaction())
-
-    # Preparar respuesta PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
-    pdf = canvas.Canvas(response, pagesize=letter)
-    ancho, alto = letter
-
-    # 1. ENCABEZADO
-    pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(40, 750, "ASAP SERVICIOS, C.A.")
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(40, 735, "RIF: J-103997390")
-    pdf.drawString(40, 720, "Av. Francisco de Miranda, Edif. Parque Cristal Torre Oeste")
-    pdf.drawString(40, 705, "Piso 12, Oficina 12-B, Los Palos Grandes, Caracas, 1060")
-    pdf.drawString(40, 690, "Tel: 0212-2867222 / 0226-7332853861")
-
-    pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(350, 750, f"Factura No: {factura.invoice_n or '00008'}")
-    pdf.drawString(350, 735, f"Fecha: {factura.invoice_d.strftime('%d/%m/%Y') or '17/05/2022'}")
-
-    # 2. DATOS DEL CLIENTE
-    pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(40, 660, "CLIENTE:")
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(110, 660, factura.partner_id.name or "ASAP SERVICIOS, C.A.")
-    pdf.drawString(110, 645, f"RIF: {factura.partner_id.tin or 'J103997390'}")
-
-    # 3. TABLA DE ITEMS
-    items = [
-        ["Item", "Descripción", "Cantidad", "Precio Unit.", "Total"],
-    ]
-    
-    # Obtener datos de la factura o usar datos de ejemplo
-    if factura.get_factura_transaction().exists():
-        for i, transaction in enumerate(factura.get_factura_transaction(), 1):
-            items.append([
-                f"{i:02d}",
-                str(transaction.product_id),
-                str(transaction.qty),
-                f"${transaction.price:,.2f}".replace(",", "."),
-                f"${transaction.calcular_subtotal():,.2f}".replace(",", ".")
-            ])
-    else:
-        # Datos de ejemplo si no hay transacciones
-        items_data = [
-            ["01", "Mantenimiento anual (01/04/2022 al 31/03/2023) sistema STIPENDA para 300 col.", "1", "$3.480,00", "$3.480,00"],
-            ["02", "Bloque de horas de Consultoría, Asesoría o Desarrollos", "4", "$0,00", "$0,00"],
-            ["03", "Bloque de horas de Consultoría, Asesoría o Desarrollos", "2", "$0,00", "$0,00"],
-            ["04", "Bloque de horas de Consultoría, Asesoría o Desarrollos", "40", "$0,00", "$0,00"],
-        ]
-        for row in items_data:
-            items.append(row)
-
-    colWidths = [30*mm, 100*mm, 25*mm, 30*mm, 30*mm]
-    table = Table(items, colWidths=colWidths)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('ALIGN', (2, 1), (-1, -1), 'CENTER'),
-        ('ALIGN', (3, 1), (-1, -1), 'RIGHT'),
-        ('ALIGN', (4, 1), (-1, -1), 'RIGHT'),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-    table.wrapOn(pdf, 40, 500)
-    table.drawOn(pdf, 40, 480)
-
-    # 4. CÁLCULOS ESPECÍFICOS PARA EL RESUMEN
-    # Usar datos reales o de ejemplo
-    if factura.get_factura_transaction().exists():
-        subtotal_usd = balance_subtotal(factura)
-        iva_usd = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
-        total_usd = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
-    else:
-        subtotal_usd = Decimal("3480.00")
-        iva_usd = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
-        total_usd = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
-    
-    tasa = Decimal("4.7848")
-    subtotal_bs = (subtotal_usd * tasa).quantize(Decimal("0.01"))
-    iva_bs = (iva_usd * tasa).quantize(Decimal("0.01"))
-    total_bs = (total_usd * tasa).quantize(Decimal("0.01"))
-
-    # 5. DIBUJAR EL RECUADRO DE RESUMEN (ESTILO TABLA)
-    # Posicionar el recuadro en la parte inferior derecha
-    x = 420  # Posición X (desde la izquierda)
-    y = 171  # Posición Y (desde abajo)
-    
-    # Crear tabla para el resumen
-    summary_data = [
-        ["SUB-TOTAL", f"${subtotal_usd:,.2f}".replace(",", ".")],
-        ["I.V.A. 16%", f"${iva_usd:,.2f}".replace(",", ".")],
-        ["TOTAL A PAGAR", f"${total_usd:,.2f}".replace(",", ".")],
-    ]
-    
-    summary_table = Table(summary_data, colWidths=[80, 60])
-    summary_table.setStyle(TableStyle([
-        ('FONT', (0, 0), (-1, -1), 'Helvetica'),
-        ('BACKGROUND', (0, 0), (0, 2), verde_73A243),
-        ('FONTSIZE', (0, 0), (-1, -1), 8.5),
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-        ('FONTNAME', (0, 2), (1, 2), 'Helvetica-Bold'),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('LINEABOVE', (0, 2), (1, 2), 1, colors.black),
-    ]))
-    
-    summary_table.wrapOn(pdf, x, y)
-    summary_table.drawOn(pdf, x, y)
-    
-       # Información de tasa de cambio ENCERRADA EN UN RECTÁNGULO
-    tasa_text = f"Tasa de cambio establecida por el Banco Central de Venezuela BCV (Bs/Dólar {tasa:.4f})"
-    pdf.setFont("Helvetica", 9)
-    
-    # Calcular el ancho del texto para dimensionar el rectángulo
-    text_width = pdf.stringWidth(tasa_text, "Helvetica", 9)
-    
-    # Dibujar rectángulo alrededor del texto
-    rect_x =35  # Ajustar posición X con margen
-    rect_y = 162 - 12  # Ajustar posición Y con margen
-    rect_width = text_width + 176.9  # Ancho del texto + margen
-    rect_height = 21  # Alto del rectángulo
-    
-    pdf.rect(rect_x, rect_y, rect_width, rect_height)
-    
-    # Dibujar el texto centrado dentro del rectángulo
-    pdf.drawString(150, 160, tasa_text)
-    
-    # Nota legal
-    # pdf.setFont("Helvetica", 9)
-    # nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor,"
-    # pdf.drawString(40, y - 35, nota_text)
-    # nota_text2 = "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa"
-    # pdf.drawString(40, y - 45, nota_text2)
-    # nota_text3 = "de cambio establecida por el BCV en fecha 17/05/2022, fuente www.bcv.org.ve"
-    # pdf.drawString(40, y - 55, nota_text3)
-    
-    # Nota legal
-    pdf.setFont("Helvetica", 9)
-    nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor,"
-    nota_text2 = "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa"
-    nota_text3 = "de cambio establecida por el BCV en fecha 17/05/2022, fuente www.bcv.org.ve"
-
-    x_text = 39
-    y_base = 171  - 35  # punto superior del primer texto
-    line_height = 10
-
-    # Dibujar los textos
-    pdf.drawString(x_text, y_base, nota_text)
-    pdf.drawString(x_text, y_base - line_height, nota_text2)
-    pdf.drawString(x_text, y_base - 2 * line_height, nota_text3)
-
-    # Calcular dimensiones del rectángulo
-    max_width = max(
-        pdf.stringWidth(nota_text, "Helvetica", 9),
-        pdf.stringWidth(nota_text2, "Helvetica", 9),
-        pdf.stringWidth(nota_text3, "Helvetica", 9)
-    )
-    rect_height = 3 * line_height + 24  # altura total con margen interno
-    pdf.rect(x_text - 4, y_base - rect_height + 14, max_width + 42, rect_height, stroke=1, fill=0)
-
-    
-    # Resumen en bolívares
-    summary_bs_data = [
-        ["SUB-TOTAL", f"Bs. {subtotal_bs:,.2f}".replace(",", ".")],
-        ["I.V.A. 16%", f"Bs. {iva_bs:,.2f}".replace(",", ".")],
-        ["TOTAL A PAGAR", f"Bs. {total_bs:,.2f}".replace(",", ".")],
-    ]
-    
-    summary_bs_table = Table(summary_bs_data, colWidths=[80, 60])
-    summary_bs_table.setStyle(TableStyle([
-        ('FONT', (0, 0), (-1, -1), 'Helvetica'),
-        ('BACKGROUND', (0, 0), (0, 2), verde_73A243),   
-        ('FONTSIZE', (0, 0), (-1, -1), 8.5),
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, 2), (1, 2), 'Helvetica-Bold'), 
-        ('LINEABOVE', (0, 2), (1, 2), 1, colors.black),
-    ]))
-    
-    summary_bs_table.wrapOn(pdf, x, y - 75)
-    summary_bs_table.drawOn(pdf, x, y - 75)
-
-    # Finalizar y devolver
-    pdf.showPage()
-    pdf.save()
-    return response
 
 # MODELO FACTURA 3
 # from reportlab.lib.pagesizes import LETTER
