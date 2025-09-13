@@ -1010,8 +1010,8 @@ def generate_pdf(request, pk):
 
     # Legal footer
     pdf.setFont("Helvetica", 7)
-    pdf.drawString(50, height - 720, "Corporación Unidigital 1220, C.A. Rif J-40148330-5 Imprenta Digital, Autorizada según Providencia Administrativa SEMIAT/INTI/2021 0000001 de fecha 19-01-2021,")
-    pdf.drawString(150, height - 730, f"Numero de Control desde el Nro 00-10749176 hasta el Nro 00-11049175 generadas el {factura.invoice_d.strftime('%d-%m-%Y')}")
+    pdf.drawString(50, height - 730, "Corporación Unidigital 1220, C.A. Rif J-40148330-5 Imprenta Digital, Autorizada según Providencia Administrativa SEMIAT/INTI/2021 0000001 de fecha 19-01-2021,")
+    pdf.drawString(150, height - 740, f"Numero de Control desde el Nro 00-10749176 hasta el Nro 00-11049175 generadas el {factura.invoice_d.strftime('%d-%m-%Y')}")
 
     # Exchange rate
     pdf.setFont("Helvetica", 8)
