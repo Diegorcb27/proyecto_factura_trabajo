@@ -1,4 +1,6 @@
-
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin  # Alternativa más moderna
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -81,35 +83,31 @@ class FacturaCreateView(CreateView):
 
 
     
-# @method_decorator(login_required, name='dispatch')
-# class FacturaListView(ListView):
-#     model=Facturas
-#     context_object_name = 'factura_list'
-#     template_name = 'factura_list.html'
-#     paginate_by=5
+@method_decorator(login_required, name='dispatch')
+class FacturaListView(ListView):
+    model=Facturas
+    context_object_name = 'factura_list'
+    template_name = 'factura_list.html'
+    paginate_by=5
     
-#     def get_queryset(self): #ordena la factura por numero de factura
-#         return Facturas.objects.all().order_by('-invoice_n')
-  
-           
+    def get_queryset(self): #ordena la factura por numero de factura
+        return Facturas.objects.all().order_by('-invoice_n')
+@method_decorator(login_required, name='dispatch')
+class FacturaUpdateView(UpdateView):
+    model = Facturas
+    form_class=Facturas_Form
+    # fields = ["descripcion", "total"]
+    template_name_suffix = "_update_form"
     
-    
-# @method_decorator(login_required, name='dispatch')
-# class FacturaUpdateView(UpdateView):
-#     model = Facturas
-#     form_class=Facturas_Form
-#     # fields = ["descripcion", "total"]
-#     template_name_suffix = "_update_form"
-    
-#     def get_success_url(self):
+    def get_success_url(self):
       
-#         return reverse_lazy('facturas:facturas_list')
+        return reverse_lazy('facturas:facturas_list')
     
-# @method_decorator(login_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 
-# class FacturaDeleteView(DeleteView):
-#     model = Facturas
-#     success_url = reverse_lazy('facturas:facturas_list')
+class FacturaDeleteView(DeleteView):
+    model = Facturas
+    success_url = reverse_lazy('facturas:facturas_list')
     
 
 
