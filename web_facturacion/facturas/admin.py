@@ -14,7 +14,7 @@ from .models import Facturas
 
 # admin.py
 from django.contrib import admin
-from .models import Facturas, Clientes
+from .models import Facturas, Clientes, FacturasTransactions
 
 @admin.register(Clientes)
 class ClienteAdmin(admin.ModelAdmin):
@@ -23,3 +23,8 @@ class ClienteAdmin(admin.ModelAdmin):
 @admin.register(Facturas)
 class FacturaAdmin(admin.ModelAdmin):
     autocomplete_fields = ['partner_id']
+    
+    
+@admin.register(FacturasTransactions)
+class FacturaTransaction(admin.ModelAdmin):
+    pass

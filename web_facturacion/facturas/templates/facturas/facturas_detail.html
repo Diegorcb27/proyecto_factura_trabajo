@@ -13,62 +13,142 @@
         <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
         <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
         <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
-        <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
-        {% if request.user.is_authenticated %}  
-        <button
-          type="button"
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#detalleFacturaModal"
-        >
-          Ver Detalles
-        </button>
-        {% endif %}
-      </div>
-    </div>
-  </div>
+        <p><strong>Fecha de la factura:</strong> {{ Facturas.invoice_d}}</p>
+        <h3>Productos</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>IVA</th>
+              <th>Total</th>
+              <th>Acciones</th> <!-- Nueva columna para los botones -->
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in Facturas.get_factura_transaction %}
+            <tr>
+              <td>{{ product.product_id }}</td>
+              <td>{{ product.price }} bs</td>
+              <td>{{ product.qty }}</td>
+              <td>{{ product.vat_rate }}%</td>
+              <td>{{ product.calcular_total }} bs</td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <box-icon name='menu'></box-icon>
+                  </button>
+                  <ul class="dropdown-menu">
+                      <li style="text-align: center;">
+                        <button class="btn btn-outline-primary px-1 mx-2 my-2">
+                          <a href="{% url 'transaction:transaction_update' product.id %}">
+                            <box-icon name='message-square-edit'></box-icon>
+                          </a>
+                        </button>
+                      </li>
+                      <li style="text-align: center;">
+                        <button class="btn btn-outline-danger px-1 mx-2 my-2">
+                          <a href="{% url 'transaction:transaction_delete' product.id %}">
+                            <box-icon name='message-square-x'></box-icon>
+                          </a>
+                        </button>
+                      </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between">
+
+          <div class="p-2">
+            <a  href="{% url 'transaction:transaction_create' Facturas.id %}"><button type="button" class="btn btn-primary mb-3">  
+              <i class="bi bi-plus"></i> Añadir producto
+            </button></a>
+          </div>
+
+          <div class="p-2">
+            
+            <h5><b>Balance Total:</b> {{ total_balance }} bs </h5>
+            
+                
+              
+
+
+            </p>
+          </div>
+          
+
+
+        </div>
+       
+     
+        
+        
+   
+
+{% comment %}
+{% if request.user.is_authenticated %}  
+<button
+  type="button"
+  class="btn btn-primary mb-3"
+  data-bs-toggle="modal"
+  data-bs-target="#detalleFacturaModal"
+>
+  Ver Detalles
+</button>
+{% endif %}
+</div>
+</div>
+</div>
 </div>
 
-<!-- Modal -->
+  <!-- Modal -->
 <div
-  class="modal fade"
-  id="detalleFacturaModal"
-  tabindex="-1"
-  aria-labelledby="detalleFacturaModalLabel"
-  aria-hidden="true"
+class="modal fade"
+id="detalleFacturaModal"
+tabindex="-1"
+aria-labelledby="detalleFacturaModalLabel"
+aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered">
-    <!-- aqui cambiamos para los tipos de modales -->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="detalleFacturaModalLabel">
-          Detalles de la Factura {{factura.id}}
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <p><strong>Cliente:</strong> {{ Facturas.partner_id }}</p>
-        <p><strong>Número de factura:</strong> {{ Facturas.invoice_n }}</p>
-        <p><strong>Número de control:</strong> {{ Facturas.invoice_c }}</p>
-        <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
-        <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
-        <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
-        <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
-        <!-- Añade más detalles aquí según sea necesario -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Cerrar
-        </button>
-      </div>
+<div class="modal-dialog modal-dialog-centered">
+  <!-- aqui cambiamos para los tipos de modales -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="detalleFacturaModalLabel">
+        Detalles de la Factura {{factura.id}}
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Cliente:</strong> {{ Facturas.partner_id }}</p>
+      <p><strong>Número de factura:</strong> {{ Facturas.invoice_n }}</p>
+      <p><strong>Número de control:</strong> {{ Facturas.invoice_c }}</p>
+      <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
+      <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
+      <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
+      <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
+      <!-- Añade más detalles aquí según sea necesario -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        Cerrar
+      </button>
     </div>
   </div>
 </div>
+</div>
+{% endcomment %}
+  
+
 
 {% endblock %}
 

@@ -2,13 +2,18 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from .models import Facturas
-from .forms import Facturas_Form
-from django.urls import reverse_lazy
+from .models import Facturas, FacturasTransactions, Productos, Clientes, ClienteContactos, ClienteDireccion
+from .forms import Facturas_Form, ProductoForm, ClienteDireccionForm, ClienteForm, ContactoForm, FacturasTransactionsForm
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse
 from django.template.loader import get_template
-from weasyprint import HTML
-from django.shortcuts import redirect
+
+from django.shortcuts import redirect, get_object_or_404, render
+from django.utils import timezone
+from django.forms import modelformset_factory
+from django.contrib import messages
+from django.db import transaction  # Importación faltante
+
 
 #estas dos importaciones es para saber si el usuario es miembro del staff y evitarnos la condicion del mixin
 from django.contrib.admin.views.decorators import staff_member_required
@@ -28,14 +33,28 @@ class StaffRequiredMixin(object): #Este mixin requerira que el usuario sea miemb
     
 
 @method_decorator(login_required, name='dispatch') #este decorador es para verificar si el usuario es staff y asi poder usar estas funcionalidades
-class FacturaCreateView(CreateView): #el staffRequiredMixin que le pasamos como parametro es para comprobar si el usuario ha iniciado sesion para poder usar el create, 
+class FacturaCreateView(CreateView):
     model = Facturas
-    form_class=Facturas_Form
-    # fields = ["descripcion", "total", "usuario"]
-    # success_url = reverse_lazy('facturas:facturas_list') #me redirecciona a la lista de las facturas
+    form_class = Facturas_Form
+    # template_name = 'facturas/factura_form.html'  # Asegúrate de que esta plantilla exista
+    
+            
     def get_success_url(self):
         return reverse_lazy('facturas:facturas_list')
+  
+ 
+
+    def form_invalid(self, form):
+        """
+        Renderiza la vista con los errores del formulario.
+        """
+        context = self.get_context_data()
+        messages.error(self.request, "Hubo un error al crear la factura. Por favor, revisa los datos.")
+        return self.render_to_response(context)
     
+  
+
+
     
 @method_decorator(login_required, name='dispatch')
 class FacturaListView(ListView):
@@ -70,74 +89,941 @@ class FacturaDeleteView(DeleteView):
 
 class FacturaDetailView(DetailView):
     model = Facturas
+    context_object_name = 'Facturas'
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        factura = self.object  # Obtiene la factura actual
+        total_balance = sum(transaction.calcular_total() for transaction in FacturasTransactions.objects.filter(invoice_id=factura))
+        context['total_balance'] = total_balance
+        return context
+    
+
+#Vistas de transacciones
+
+@method_decorator(login_required, name='dispatch')
+class  FacturasTransactionsCreateView(CreateView):
+    model = FacturasTransactions
+    form_class = FacturasTransactionsForm
+    template_name = 'facturas/facturas_transaction_form.html'
+    
+    
+    def get_success_url(self):
+        return reverse_lazy('facturas:facturas_list')
+    
+    def form_valid(self, form):
+        factura = get_object_or_404(Facturas, pk=self.kwargs['product_id'])  # Obtén el objeto relacionado
+        form.instance.invoice_id = factura  # Asocia el `partner_id` al formulario
+        return super().form_valid(form)
+    
+    
+    
+
+@method_decorator(login_required, name="dispatch")
+class FacturasTransactionsUpdateView(UpdateView):
+     model = FacturasTransactions
+     form_class = FacturasTransactionsForm
+     template_name_suffix = "_update_form"
+     template_name = 'facturas/facturas_transaction_update_form.html'
+     
+    #  def get_success_url(self):
+    #     return reverse_lazy('facturas:facturas_list')
+    
+     def get_success_url(self):
+        factura_id = self.object.invoice_id.id  # Obtener el ID de la factura asociada
+        return reverse('facturas:facturas_detail', kwargs={'pk': factura_id})
+    
+@method_decorator(login_required, name="dispatch")
+
+class FacturasTransactionDeleteView(DeleteView):
+    model = FacturasTransactions
+    template_name = 'facturas/facturas_transaction_confirm_delete.html'
+    # success_url = reverse_lazy('facturas:facturas_list')
+    def get_success_url(self):
+        factura_id = self.object.invoice_id.id  # Obtener el ID de la factura asociada
+        return reverse('facturas:facturas_detail', kwargs={'pk': factura_id})
+    
+    
+    
+    
+#Vistas de Productos
+
+#CRUD productos
+
+@method_decorator(login_required, name='dispatch')
+class ProductoCreateView(CreateView):
+    model = Productos
+    form_class = ProductoForm
+    
+    def get_success_url(self):
+        return reverse_lazy('productos:productos_list')
+    
+
+@method_decorator(login_required, name='dispatch')
+class ProductoListView(ListView):
+    model = Productos
+    paginate_by = 100  # if pagination is desired
+    context_object_name = 'producto_list'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+    
+    
+@method_decorator(login_required, name='dispatch')
+class ProductoUpdateView(UpdateView):
+    model = Productos
+    form_class = ProductoForm
+    template_name_suffix = "_update_form"
+    
+    def get_success_url(self):
+        return reverse_lazy('productos:productos_list')
+
+@method_decorator(login_required, name='dispatch')
+
+class ProductoDeleteView(DeleteView):
+    model = Productos
+    success_url = reverse_lazy('productos:productos_list')
+    
+
+@method_decorator(login_required, name='dispatch')
+class ProductoDetailView(DetailView):
+    model = Productos
+    context_object_name="Productos"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+
+
+#Vistas de Clientes
+@method_decorator(login_required, name='dispatch') 
+class ClienteCreateView(CreateView):
+    model = Clientes
+    # fields = ["nombre", "rif", "telefono_1", "telefono_2", "email", "num_empleados"]
+    form_class=ClienteForm
+    template_name = 'facturas/Clientes_form.html'
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+
+
+@method_decorator(login_required, name='dispatch') 
+class ClienteListView(ListView):
+    model=Clientes
+    context_object_name = 'cliente_list'
+    template_name = 'facturas/cliente_list.html'
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteUpdateView(UpdateView):
+    model = Clientes
+    # fields = ["rif", "nombre", "email", "telefono_1", "telefono_2", "num_empleados"]
+    form_class=ClienteForm
+    template_name_suffix = "_update_form"
+    
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+    
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteDeleteView(DeleteView):
+    model = Clientes
+    success_url = reverse_lazy('cliente:cliente_list')
+    
+@method_decorator(login_required, name='dispatch') 
+class ClienteDetailView(DetailView):
+    model = Clientes
+    context_object_name = 'partner' #con este atributo puedo usar este nombre para acceder al modelo de cada cliente en particular
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["now"] = timezone.now()
+        return context
+    
+#CRUD DIRECCION CLIENTE
+
+# Crear dirección
+class PartnerAddressCreateView(CreateView):
+    model = ClienteDireccion
+    form_class=ClienteDireccionForm
+    # fields = ['address_type', 'address_lines', 'ref_address', 'country_id', 'state_id', 'city', 'municipality', 'parish', 'postal_code']
+    template_name = 'facturas/cliente_direccion_form.html'
+    def form_valid(self, form):
+        # Obtener el cliente usando el parámetro de la URL
+        cliente = get_object_or_404(Clientes, pk=self.kwargs['partner_id'])
+        form.instance.partner_id = cliente  # Asigna el cliente a la dirección
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirige a la lista de clientes, o la página deseada
+        return reverse_lazy('cliente:cliente_list')
+    
+   
+    
+
+
+# Listar direcciones
+class PartnerAddressListView(ListView):
+    model = ClienteDireccion
+    template_name = 'facturas/cliente_direccion_list.html'
+    context_object_name = 'addresses'
+
+# Detalle de dirección
+class PartnerAddressDetailView(DetailView):
+    model = ClienteDireccion
+    template_name = 'facturas/cliente_direccion_detail.html'
+    context_object_name = 'partner'
+    
+    def get_object(self):
+        # Maneja el error 404 si el objeto no se encuentra
+        return get_object_or_404(ClienteDireccion, pk=self.kwargs['pk'])
+    
+
+class PartnerAddressUpdateView(UpdateView):
+    model = ClienteDireccion
+    form_class=ClienteDireccionForm
+    template_name = 'facturas/cliente_direccion_update_form.html'
+    
+    def get_object(self):
+        return get_object_or_404(ClienteDireccion, pk=self.kwargs['pk'])
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+
+
+# Eliminar dirección
+class PartnerAddressDeleteView(DeleteView):
+    model = ClienteDireccion
+    template_name = 'facturas/cliente_direccion_confirm_delete.html'
+    def get_object(self):
+        # Usa el pk de la URL para buscar el objeto de dirección
+        return get_object_or_404(ClienteDireccion, pk=self.kwargs['pk'])
+
+    def get_success_url(self):
+        # Redirige a la vista de detalle del cliente
+        return reverse('cliente:cliente_detail', kwargs={'pk': self.object.partner_id.id})
+    
+# CRUD CONTACTO
+@method_decorator(login_required, name='dispatch') 
+class ContactoCreateView(CreateView):
+    model = ClienteContactos
+    form_class=ContactoForm
+    # template_name = 'facturas/cliente_contactos_form.html'
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+    
+    def form_valid(self, form):
+        partner = get_object_or_404(Clientes, pk=self.kwargs['cliente_id'])  # Obtén el objeto relacionado
+        form.instance.partner_id = partner  # Asocia el `partner_id` al formulario
+        return super().form_valid(form)
+    
+
+
+# @method_decorator(login_required, name='dispatch') 
+# class ContactoListView(ListView):
+#     model=Contacto
+#     context_object_name = 'contacto_list'
+#     template_name = 'contacto_list.html'
+    
+@method_decorator(login_required, name='dispatch') 
+class ContactoUpdateView(UpdateView):
+    model = ClienteContactos
+    # fields = ["name", "cargo", "telephone", "cellphone", "extension", "email"]
+    form_class=ContactoForm
+    template_name_suffix = "_update_form"
+    
+    def get_success_url(self):
+      
+        return reverse_lazy('cliente:cliente_list')
+    
+    
+@method_decorator(login_required, name='dispatch') 
+class ContactoDeleteView(DeleteView):
+    model =  ClienteContactos
+    success_url = reverse_lazy('cliente:cliente_list')
+    
+    
+#crearemos una funcion para mostrar las facturas del cliente
+# @method_decorator(login_required, name='dispatch') 
+
+@login_required
+def facturas_por_cliente(request, cliente_id):
+   cliente = get_object_or_404(Clientes, id=cliente_id)
+   facturas = Facturas.objects.filter(partner_id=cliente)
+   return render(request, 'facturas/facturas_por_cliente.html', {'cliente': cliente, 'facturas': facturas})
+
+#Filtro el contacto por cliente
+@login_required
+def contacto_por_cliente(request, cliente_id):
+   cliente = get_object_or_404(Clientes, id=cliente_id)
+   contactos = ClienteContactos.objects.filter(partner_id=cliente)
+   return render(request, 'facturas/contacto_por_cliente.html', {'cliente': cliente, 'contactos': contactos})
+
+@login_required
+def direccion_por_cliente(request, cliente_id):
+    # Obtener el cliente específico
+    cliente = get_object_or_404(Clientes, id=cliente_id)
+    
+    # Obtener las direcciones asociadas al cliente
+    direcciones = ClienteDireccion.objects.filter(partner_id=cliente)
+    
+    # Renderizar la plantilla con los datos
+    return render(request, 'facturas/direccion_por_cliente.html', {'cliente': cliente, 'direcciones': direcciones})
+
+
+
 
 
 
 #generar PDF
 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
 from django.http import HttpResponse
-from django.template.loader import get_template
-from weasyprint import HTML
-from .models import Facturas
-from django.views.generic.list import ListView
-import tempfile
+from reportlab.lib.units import mm
+from decimal import Decimal
 
-def generate_pdf(request, pk):
-#     factura = Factura.objects.get(pk=pk)
-#     template = get_template('facturas/factura_detail_pdf.html')
-#     context = {
-#         "descripcion": factura.descripcion,
-#         "total": factura.total,
-#         "id": factura.id,
-#         "usuario": factura.usuario
-#     }
-#     html_template = template.render(context)
-#     pdf_file = HTML(string=html_template).write_pdf()
+
+# MODELO FACTURA 1
+
+# def generate_pdf(request, pk):
+#     factura = Facturas.objects.get(pk=pk)
+    
+#     def balance_subtotal(factura):
+#         subtotal = 0
+#         for transaction in factura.get_factura_transaction():
+#             subtotal += transaction.calcular_subtotal()
+#         return subtotal
+    
+#     def balance_total(factura):
+#         total = 0
+#         for transaction in factura.get_factura_transaction():
+#             total += transaction.calcular_total()
+#         return total
+    
 
 #     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'filename="factura_{pk}.pdf"'
-#     response['Content-Transfer-Encoding'] = 'binary'
+#     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
+#     pdf = canvas.Canvas(response, pagesize=letter)
+#     width, height = letter
 
-#     with tempfile.NamedTemporaryFile(delete=True) as output:
-#         output.write(pdf_file)
-#         output.flush()
+#     # Encabezado
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(20, 670, "Cliente:")
+#     pdf.setFont("Helvetica", 12)
+#     pdf.drawString(20, 658, str(factura.partner_id))
 
-#         output = open(output.name, 'rb')
-#         response.write(output.read())
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(20, 640, "RIF:")
+#     pdf.setFont("Helvetica", 12)
+#     pdf.drawString(20, 628, str(factura.partner_id.tin))
+
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(20, 610, "Domicilio Fiscal:")
+#     pdf.setFont("Helvetica", 12)
+#     pdf.drawString(20, 598, str(factura.partner_id.name))
+
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(20, 580, "Contactos:")
+#     pdf.setFont("Helvetica", 12)
+#     pdf.drawString(20, 568, str(factura.partner_id.website))
+
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(480, 670, f"Factura N°: {factura.invoice_n}")
+#     pdf.drawString(480, 655, f"Control N°: {factura.invoice_c}")
+#     pdf.drawString(480, 640, f"Fecha: {factura.invoice_d.strftime('%d/%m/%Y')}")
+
+#     # Tabla de productos
+#     data = [["Producto", "PRECIO", "CANTIDAD", "TOTAL"]]
+#     for product in factura.get_factura_transaction():
+#        data.append([
+#             product.product_id,
+#             f"{product.price} $",
+#             product.qty,
+#             f"{product.calcular_subtotal():.2f} $",
+           
+#         ])
+
+#     # 📐 Ancho total para centrar
+#     colWidths = [200, 130, 130, 115]  # Total: 595
+#     # x_position = (page_width - total_width) / 2  # 42.5 → puedes redondear a 42
+#     x_position = 20
+#     y_position = 480
+
+#         # 🧾 Construcción y estilo de tabla
+#     table = Table(data, colWidths=colWidths)
+#     table.setStyle(TableStyle([
+#             ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+#             ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+#             ('FONTSIZE', (0, 0), (-1, 0), 9),  # Tamaño de fuente más pequeño en el encabezado
+#             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),      # Negrita
+#             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),                 # Centrado horizontal cabecera
+#             ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),                # Centrado vertical cabecera
+#             ('BOX', (0, 0), (-1, 0), 0.5, colors.black),          # Bordes externos cabecera
+#             ('GRID', (0, 0), (-1, 0), 0.5, colors.black),         # Bordes internos cabecera
+
+#             ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),                 # Alinear columnas numéricas
+#             ('VALIGN', (0, 1), (-1, -1), 'TOP'),                  # Alineación vertical en datos
+#             ('BACKGROUND', (0, 1), (-1, -1), colors.white),       # Fondo blanco filas de datos
+#         ]))
+
+#         # 📍 Dibujar tabla centrada
+#     table.wrapOn(pdf, x_position, 500)
+#     table.drawOn(pdf, x_position, y_position)
+
+#         # 🔢 Totales alineados con la tabla
+#     subtotal = balance_subtotal(factura)
+#     total = balance_total(factura)
+#     iva = total - subtotal
+
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(420, 280, f"SUB-TOTAL USD:")
+#     pdf.drawString(420, 265, f"I.V.A. % USD:")
+#     pdf.drawString(420, 250, f"TOTAL A PAGAR USD:")
+
+    
+#     # 🔢 Valores en fuente regular
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(550, 280, f"{subtotal:.2f}")
+#     pdf.drawString(550, 265, f"{iva:.2f}")
+#     pdf.drawString(550, 250, f"{total:.2f}")
+ 
+
+#     # Nota legal
+#     pdf.setFont("Helvetica-Oblique", 9)
+#     pdf.drawString(50, 250, "A los efectos de lo previsto en el Art. 25 de la ley de Impuesto al Valor Agregado,")
+#     pdf.drawString(50, 237, f"para efecto de conversión se ha utilizado la tasa de cambio del BCV, el 13 de julio de 2023,")
+#     pdf.drawString(50, 224, "Fuente: www.bcv.org.ve")
+
+#     pdf.showPage()
+#     pdf.save()
 
 #     return response
+
+# MODELO FACTURA 2
+def generate_pdf(request, pk):
+    factura = Facturas.objects.get(pk=pk)
+    verde_73A243 = colors.Color(red=170/255, green=200/255, blue=130/255)
+
+    # Funciones auxiliares para cálculo
+    def balance_subtotal(factura):
+        return sum(tx.calcular_subtotal() for tx in factura.get_factura_transaction())
+
+    def balance_total(factura):
+        return sum(tx.calcular_total() for tx in factura.get_factura_transaction())
+
+    # Preparar respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
+    pdf = canvas.Canvas(response, pagesize=letter)
+    ancho, alto = letter
+    
+
+    # Encabezado
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(350, 750, "Factura N°:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(430, 750, str(factura.invoice_n))
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(350, 735, "Control N°:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(430, 735, str(factura.invoice_c))
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(350, 720, "Fecha:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(400, 720, factura.invoice_d.strftime("%d/%m/%Y"))
+    
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(350, 705, "Cliente:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(350, 690, str(factura.partner_id))
+
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(350, 675, str(factura.partner_id.tin))
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(350, 660, "Domicilio Fiscal:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(445, 660, str(factura.partner_id.name))
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(350, 645, "Contactos:")
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(350, 630, str(factura.partner_id.website))
+
+    
+
+   
+    # Tabla de productos
+    data = [["Producto", "PRECIO", "CANTIDAD", "TOTAL"]]
+    for product in factura.get_factura_transaction():
+       data.append([
+            product.product_id,
+            f"{product.price} $",
+            product.qty,
+            f"{product.calcular_subtotal():.2f} $",
+           
+        ])
+
+    # 📐 Ancho total para centrar
+    colWidths = [200, 130, 130, 115]  # Total: 595
+    # x_position = (page_width - total_width) / 2  # 42.5 → puedes redondear a 42
+    x_position = 20
+    y_position = 480
+
+        # 🧾 Construcción y estilo de tabla
+    table = Table(data, colWidths=colWidths)
+    table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),  # Tamaño de fuente más pequeño en el encabezado
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),      # Negrita
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),                 # Centrado horizontal cabecera
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),                # Centrado vertical cabecera
+            ('BOX', (0, 0), (-1, 0), 0.5, colors.black),          # Bordes externos cabecera
+            ('GRID', (0, 0), (-1, 0), 0.5, colors.black),         # Bordes internos cabecera
+
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),                 # Alinear columnas numéricas
+            ('VALIGN', (0, 1), (-1, -1), 'TOP'),                  # Alineación vertical en datos
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),       # Fondo blanco filas de datos
+        ]))
+    
+     #4. CÁLCULOS ESPECÍFICOS PARA EL RESUMEN
+    # Usar datos reales o de ejemplo
+    if factura.get_factura_transaction().exists():
+        subtotal_usd = balance_subtotal(factura)
+        iva_usd = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
+        total_usd = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
+    else:
+        subtotal_usd = Decimal("3480.00")
+        iva_usd = (subtotal_usd * Decimal("0.16")).quantize(Decimal("0.01"))
+        total_usd = (subtotal_usd + iva_usd).quantize(Decimal("0.01"))
+    
+    tasa = Decimal("4.7848")
+    subtotal_bs = (subtotal_usd * tasa).quantize(Decimal("0.01"))
+    iva_bs = (iva_usd * tasa).quantize(Decimal("0.01"))
+    total_bs = (total_usd * tasa).quantize(Decimal("0.01"))
+
+    # 5. DIBUJAR EL RECUADRO DE RESUMEN (ESTILO TABLA)
+    # Posicionar el recuadro en la parte inferior derecha
+    x = 405  # Posición X (desde la izquierda)
+    y = 171  # Posición Y (desde abajo)
+    
+    # Crear tabla para el resumen
+    summary_data = [
+        ["SUB-TOTAL", f"${subtotal_usd:,.2f}".replace(",", ".")],
+        ["I.V.A. 16%", f"${iva_usd:,.2f}".replace(",", ".")],
+        ["TOTAL A PAGAR", f"${total_usd:,.2f}".replace(",", ".")],
+    ]
+    
+    summary_table = Table(summary_data, colWidths=[80, 106])
+    summary_table.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), 'Helvetica'),
+        ('BACKGROUND', (0, 0), (0, 2), verde_73A243),
+        ('FONTSIZE', (0, 0), (-1, -1), 8.5),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 2), (1, 2), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('LINEABOVE', (0, 2), (1, 2), 1, colors.black),
+    ]))
+    
+    summary_table.wrapOn(pdf, x, y)
+    summary_table.drawOn(pdf, x, y)
+    
+       # Información de tasa de cambio ENCERRADA EN UN RECTÁNGULO
+    tasa_text = f"Tasa de cambio establecida por el Banco Central de Venezuela BCV (Bs/Dólar {tasa:.4f})"
+    pdf.setFont("Helvetica", 9)
+    
+    # Calcular el ancho del texto para dimensionar el rectángulo
+    text_width = pdf.stringWidth(tasa_text, "Helvetica", 9)
+    
+    # Dibujar rectángulo alrededor del texto
+    rect_x =20  # Ajustar posición X con margen
+    rect_y = 162 - 12  # Ajustar posición Y con margen
+    rect_width = text_width + 223  # Ancho del texto + margen
+    rect_height = 21  # Alto del rectángulo
+    
+    pdf.rect(rect_x, rect_y, rect_width, rect_height)
+    
+    # Dibujar el texto centrado dentro del rectángulo
+    pdf.drawString(140, 160, tasa_text)
+    
+    # Nota legal
+    pdf.setFont("Helvetica", 9)
+    nota_text = "A los solos efectos de lo previsto en el Art. 25 de la ley de Impuesto de Valor,"
+    nota_text2 = "Agregado se expresan los montos de la factura en Bolívares(Bs) considerando la tasa"
+    nota_text3 = "de cambio establecida por el BCV en fecha 17/05/2022, fuente www.bcv.org.ve"
+
+    x_text = 24
+    y_base = 171  - 35  # punto superior del primer texto
+    line_height = 10
+
+    # Dibujar los textos
+    pdf.drawString(x_text, y_base, nota_text)
+    pdf.drawString(x_text, y_base - line_height, nota_text2)
+    pdf.drawString(x_text, y_base - 2 * line_height, nota_text3)
+
+    # Calcular dimensiones del rectángulo
+    max_width = max(
+        pdf.stringWidth(nota_text, "Helvetica", 9),
+        pdf.stringWidth(nota_text2, "Helvetica", 9),
+        pdf.stringWidth(nota_text3, "Helvetica", 9)
+    )
+    rect_height = 3 * line_height + 24  # altura total con margen interno
+    pdf.rect(x_text - 4, y_base - rect_height + 14, max_width + 42, rect_height, stroke=1, fill=0)
+
+    
+    # Resumen en bolívares
+    summary_bs_data = [
+        ["SUB-TOTAL", f"Bs. {subtotal_bs:,.2f}".replace(",", ".")],
+        ["I.V.A. 16%", f"Bs. {iva_bs:,.2f}".replace(",", ".")],
+        ["TOTAL A PAGAR", f"Bs. {total_bs:,.2f}".replace(",", ".")],
+    ]
+    
+    summary_bs_table = Table(summary_bs_data, colWidths=[80, 106])
+    summary_bs_table.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), 'Helvetica'),
+        ('BACKGROUND', (0, 0), (0, 2), verde_73A243),   
+        ('FONTSIZE', (0, 0), (-1, -1), 8.5),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 2), (1, 2), 'Helvetica-Bold'), 
+        ('LINEABOVE', (0, 2), (1, 2), 1, colors.black),
+    ]))
+    
+    summary_bs_table.wrapOn(pdf, x, y - 75)
+    summary_bs_table.drawOn(pdf, x, y - 75)
+    
+    #Dibujar rectangulo superior izquierdo
+    
+    rect2_x = 20
+    rect2_y = 162 - 12
+    rect2_width = text_width + 223
+    rect2_height = 75
+    
+    pdf.setStrokeColor(colors.black)
+    pdf.setLineWidth(1)
+    pdf.rect(rect2_x, rect2_y, rect2_width, rect2_height, stroke=1, fill=0)
+
+        # 📍 Dibujar tabla centrada
+    table.wrapOn(pdf, x_position, 500)
+    table.drawOn(pdf, x_position, y_position)
+    
+      
+    # Guardar PDF
+
+    pdf.showPage()
+    pdf.save()
+
+    return response
+
+
+
+# MODELO FACTURA 3
+# from reportlab.lib.pagesizes import LETTER
+# from reportlab.pdfgen import canvas
+# from reportlab.lib import colors
+# from reportlab.platypus import Table, TableStyle
+# from reportlab.lib.styles import ParagraphStyle
+# from reportlab.platypus import Paragraph
+# from reportlab.lib.units import inch
+# from datetime import timedelta
+# from decimal import Decimal
+# import os
+# from django.conf import settings
+
+
+# def generate_pdf(request, pk):
+#     factura = Facturas.objects.get(pk=pk)
+#     transacciones = factura.get_factura_transaction() 
+
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
+#     pdf = canvas.Canvas(response, pagesize=LETTER)
+#     width, height = LETTER
+
+#     # Set up fonts and colors
+#     pdf.setTitle(f"Factura NetUno {factura.invoice_n}")
+    
+
+# # Dibujar un rectángulo gris
+#     pdf.setFillColor(colors.lightgrey)  # Color de relleno gris claro
+#     pdf.setStrokeColor(colors.lightgrey)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(385, height-190, 170, 35, 10, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
+    
+#     # Dibujar un rectángulo amarillo
+#     pdf.setFillColor(colors.yellow)  # Color de relleno gris claro
+#     pdf.setStrokeColor(colors.lightyellow)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(20, height-560, 570, 50, 10, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
+    
+#       # Dibujar un rectángulo azul 1 final redes sociales
+#     pdf.setFillColor(colors.darkblue)  # Color de relleno gris claro
+#     pdf.setStrokeColor(colors.darkblue)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(1, -3, 610, 25, 5, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
+    
+
+#     # Client information
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(50, height - 120, "Nombre / Razón Social:")
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(170, height - 120, str(factura.partner_id.name))
+    
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(50, height - 135, "C.I. / R.I.F.:")
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(100, height - 135, str(factura.partner_id.tin))
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(50, height - 150, "Dirección Fiscal:")
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(130, height - 150, "AVEN. PRINCIPAL VALLE ARRIBA, C.C. DAYMAR, ")
+#     pdf.drawString(50, height - 160, "NIVEL 2, LOCAL P2-09")
+    
+   
+  
+
+#     # Invoice header
+#     pdf.setFillColor(colors.red)  # Establece el color de texto en rojo
+#     pdf.setFont("Helvetica-Bold", 13)
+#     pdf.drawCentredString(423, height - 130, "Factura")
+#     pdf.setFillColor(colors.black)  # Restablece el color a negro para el resto del contenido
+
+    
+#     pdf.setFont("Helvetica-Bold", 9)
+#     pdf.drawString(400, height - 140, "Nro. de Factura:")
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(470, height - 140, str(factura.invoice_n))
+    
+#     pdf.setFont("Helvetica-Bold", 9)
+#     pdf.drawString(400, height - 150, "Fecha de Emisión:")
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(480, height - 150, factura.invoice_d.strftime("%d/%m/%Y"))
+    
+#     pdf.setFont("Helvetica-Bold", 9)
+#     pdf.drawString(400, height - 170, "Nro. de Control:")
+    
+#     pdf.setFillColor(colors.red)  # Establece el color de texto en rojo
+#     pdf.setFont("Helvetica-Bold", 10)
+#     pdf.drawString(470, height - 170, str(factura.invoice_c))
+#     pdf.setFillColor(colors.black)  # Restablece el color a negro para el resto del contenido
+    
+#     pdf.setFont("Helvetica-Bold", 9)
+#     pdf.drawString(400, height - 180, "Fecha de Asignación:")
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(495, height - 180, (factura.invoice_d + timedelta(days=1)).strftime("%d/%m/%Y"))
+    
+#     # Dibujar un rectángulo azul 2
+#     pdf.setFillColor(colors.darkblue)  
+#     pdf.setStrokeColor(colors.darkblue)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(20, height - 250, 275, 50, 10, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
     
     
-    # try:
-        factura = Facturas.objects.get(pk=pk)
-        template = get_template('facturas/factura_detail_pdf.html')
-        context = {
-            "cliente": factura.cliente,
-            "numero_factura": factura.numero_factura,
-            "rif": factura.rif,
-            "domicilio": factura.domicilio_fiscal,
-            "telefono": factura.telefono,
-            "descripcion": factura.descripcion,
-            "forma_pago": factura.forma_pago,
-            "Importe": factura.importe,
-            "iva":factura.iva,
-            "total": factura.calcular_total_con_iva,
-            "id": factura.id,
+#     # Dibujar un rectángulo azul 3
+#     pdf.setFillColor(colors.darkblue)  
+#     pdf.setStrokeColor(colors.darkblue)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(325, height - 250, 265, 50, 10, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
+    
+   
+
+
+#     # Account and payment information
+#     pdf.setFillColor(colors.white)
+#     pdf.setFont("Helvetica", 9)
+#     pdf.drawString(100, height - 220, f"Número de Cuenta: 1276116")
+#     pdf.drawString(380, height - 220, f"Pague Antes de: {(factura.invoice_d + timedelta(days=17)).strftime('%d-%m-%Y')}")
+#     pdf.setFillColor(colors.black)
+    
+#       # Dibujar un rectángulo gris
+#     pdf.setFillColor(colors.lightgrey)  # Color de relleno gris claro
+#     pdf.setStrokeColor(colors.lightgrey)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(20, height-510, 570, 280, 10, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
+    
+#      # Dibujar un rectángulo azul 4 encabezado
+#     pdf.setFillColor(colors.darkblue)  
+#     pdf.setStrokeColor(colors.darkblue)  # Color del borde
+#     pdf.setLineWidth(0)  # Grosor de la línea
+
+# # drawRect(x, y, width, height, stroke=1, fill=0)
+#     pdf.roundRect(25, height - 260, 560, 26, 10, stroke=1, fill=1)
+#     pdf.setFillColor(colors.black) 
+
+#     # Table of items
+#     data = [
+#         ["Cantidad", "Código", "Descripción", "Precio Unitario", "Total"]
+#     ]
+    
+#     for trans in transacciones:
+#         precio = trans.price  # Precio unitario original
+#         iva_percent = Decimal('0.16')
+#         iva_amount = (precio * Decimal(trans.qty) * iva_percent).quantize(Decimal('0.00'))
+#         total_linea = (precio * Decimal(trans.qty)).quantize(Decimal('0.00'))
+        
+#         data.append([
+#             str(trans.qty),
+#             trans.product_id or "N/A",
+#             trans.product_id.name,
+#             f"$ {precio:.2f}",  # Precio unitario original
+#             f"$ {total_linea:.2f}"  # Total sin IVA incluido
+#         ])
+        
+#         colWidths = [50, 50, 200, 170, 80]
+#         table = Table(data, colWidths=colWidths)
+
+#         table.setStyle(TableStyle([
+#             ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+#             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+#             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#             ('FONTSIZE', (0, 0), (-1, -1), 8),
+#             ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+#             ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),  # Fondo gris para productos
+#             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#             ('ALIGN', (3, 1), (-1, -1), 'RIGHT'),
             
-            
-        }
-        html_template = template.render(context)
-        pdf_file = HTML(string=html_template).write_pdf(target=f"factura_{pk}.pdf")
-        response = HttpResponse(pdf_file, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="output.pdf"'
-        print(pk)
-        return response
+#         ]))
+
+#     # Coordenadas para la tabla
+#         x = 30
+#         y = height - 295
+#         table_width, table_height = table.wrap(0, 0)
+
+
+#     # Dibujar la tabla encima del fondo
+#         table.drawOn(pdf, x, y)
     
-    # f' attachment; filename="factura_{pk}.pdf"'
-    # except Exception as e:
-    #     return HttpResponse(f"Error: {e}")
+
+#     # Totals section
+#     subtotal = sum(Decimal(str(trans.price * trans.qty)) for trans in transacciones) 
+#     iva_total = subtotal * Decimal("0.16")
+#     total = subtotal + iva_total
+#     exchange_rate = Decimal(97.3126)  # BCV rate
+
+#     # Legal notice about IGTF
+#     pdf.setFont("Helvetica", 7)
+#     pdf.drawString(40, height - 470, "Los montos pagados en divisas estarán sujetos al 3% del IGTF de acuerdo a la")
+#     pdf.drawString(40, height - 485, "Gaceta Oficial N 42.339 de fecha 17-03-2022")
+
+#     # NetUno message
+#     message = """<b>Mensaje de Facturación:</b> Nacímos hace 30 años, con una promesa. Hemos estado aquí, impulsando sueños, mejorando la vida en cada hogar y en cada empresa. Porque los momentos que importan no se cuentan en gigas, canales o llamadas, sino en lo que hace que tu corazón vibre con más fuerza. Somos más que datos, somos progreso que conecta. NetUno, 30 años contigo en el corazón."""
     
+#     style = ParagraphStyle(
+#         name='Normal',
+#         fontName='Helvetica',
+#         fontSize=7,
+#         leading=12,
+#         spaceBefore=6,
+#         spaceAfter=6,
+#     )
+    
+#     p = Paragraph(message, style)
+#     p.wrapOn(pdf, width - 60, 100)
+#     p.drawOn(pdf, 30, height - 550)
+#     try:
+#     # Construir la ruta correctamente
+#         image_path = os.path.join(settings.BASE_DIR, 'facturas', 'static', 'img', 'imagen_prueba_mod_3.jpg')
+    
+#     # Verificar si el archivo existe
+#         if os.path.exists(image_path):
+#             pdf.drawImage(
+#             image_path,
+#             20,                    # Posición X
+#             height - 710,           # Posición Y
+#             width=270,              # Ancho
+#             height=150,             # Alto
+#             preserveAspectRatio=True
+#         )
+#             print(f"Imagen cargada desde: {image_path}")
+#         else:
+#             print(f"La imagen no existe en: {image_path}")
+#         # Para debug: verificar qué archivos hay en el directorio
+#             img_dir = os.path.join(settings.BASE_DIR, 'facturas', 'static', 'img')
+#             if os.path.exists(img_dir):
+#              print(f"Archivos en el directorio: {os.listdir(img_dir)}")
+#     except Exception as e:
+#         print(f"Error al cargar imagen: {e}")
+        
+#     # Dolares
+#     pdf.setFont("Helvetica", 7)
+#     pdf.drawString(320, height - 455, "Total Ventas no Gravadas:")
+#     pdf.drawString(320, height - 465, "Total Base imponible del 16,00%:")
+#     pdf.drawString(320, height - 475, "Total IVA 16,00%:")
+#     pdf.drawString(320, height - 485, "Total Factura:")
+    
+#     pdf.setFont("Helvetica", 7)
+#     pdf.drawString(550, height - 455, "$ 0,00")
+#     pdf.drawString(550, height - 465, f"$ {subtotal:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+#     pdf.drawString(550, height - 475, f"$ {iva_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+#     pdf.drawString(550, height - 485, f"$ {total:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    
+    
+#     # bolivares
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(320, height - 630, "Total Ventas no Gravadas:")
+#     pdf.drawString(320, height - 645, "Total Base imponible del 16,00%:")
+#     pdf.drawString(320, height - 660, "Total IVA 16,00%:")
+#     pdf.drawString(320, height - 675, "Total Factura:")
+    
+#     pdf.setFont("Helvetica", 10)
+#     pdf.drawString(500, height - 630, "Bs. 0,00")
+#     pdf.drawString(500, height - 645, f"Bs. {subtotal * exchange_rate:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+#     pdf.drawString(500, height - 660, f"Bs. {iva_total * exchange_rate:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+#     pdf.drawString(500, height - 675, f"Bs. {total * exchange_rate:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+
+   
+
+#     # Legal footer
+#     pdf.setFont("Helvetica", 7)
+#     pdf.drawString(50, height - 730, "Corporación Unidigital 1220, C.A. Rif J-40148330-5 Imprenta Digital, Autorizada según Providencia Administrativa SEMIAT/INTI/2021 0000001 de fecha 19-01-2021,")
+#     pdf.drawString(150, height - 740, f"Numero de Control desde el Nro 00-10749176 hasta el Nro 00-11049175 generadas el {factura.invoice_d.strftime('%d-%m-%Y')}")
+
+#     # Exchange rate
+#     pdf.setFont("Helvetica", 8)
+#     pdf.drawString(320, height - 600, "Tasa de Cambio BCV:")
+#     pdf.drawString(500, height - 600, f"Bs. {exchange_rate:,.4f}".replace(",", "X").replace(".", ",").replace("X", "."))
+
+#     pdf.showPage()
+#     pdf.save()
+
+#     return response
+
+
     #generar Excel
 from openpyxl import Workbook
 from openpyxl.styles import Alignment,Border,Font,PatternFill,Side
@@ -369,7 +1255,7 @@ class ReportePersonalizadoExcel(TemplateView):
         # ws.cell(row = 3, column = 3).border = Border(left = Side(border_style = "thin"), right = Side(border_style = "thin"),
         #                             top = Side(border_style = "thin"), bottom = Side(border_style = "thin") )
         ws.cell(row = 3, column = 3).font = Font(name='Times New Roman', size=12)
-        ws.cell(row = 3 , column = 3).value = str(factura.cliente)
+        ws.cell(row = 3 , column = 3).value = str(factura.partner_id.name)
             
         ws.cell(row = 7, column = 3).alignment = Alignment(horizontal="left", vertical="center") #cell son celdas
         # ws.cell(row = 7, column = 3).border = Border(left = Side(border_style = "thin"), right = Side(border_style = "thin"),

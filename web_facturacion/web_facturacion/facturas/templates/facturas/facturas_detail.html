@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %} {% block title %}Factura detail{% endblock %}
+{%block content %}
+
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center g-2">
+    <div class="col">
+      <h2>Factura de {{Facturas.partner_id}}</h2>
+      <div>
+        <h1>Detalle de la Factura</h1>
+        <p><strong>Cliente:</strong> {{ Facturas.partner_id }}</p>
+        <p><strong>Número de factura:</strong> {{ Facturas.invoice_n }}</p>
+        <p><strong>Número de control:</strong> {{ Facturas.invoice_c }}</p>
+        <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
+        <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
+        <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
+        {% if request.user.is_authenticated %}  
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#detalleFacturaModal"
+        >
+          Ver Detalles
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="detalleFacturaModal"
+  tabindex="-1"
+  aria-labelledby="detalleFacturaModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <!-- aqui cambiamos para los tipos de modales -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detalleFacturaModalLabel">
+          Detalles de la Factura {{factura.id}}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Cliente:</strong> {{ Facturas.partner_id }}</p>
+        <p><strong>Número de factura:</strong> {{ Facturas.invoice_n }}</p>
+        <p><strong>Número de control:</strong> {{ Facturas.invoice_c }}</p>
+        <p><strong>Descuento:</strong> {{ Facturas.discount }}</p>
+        <p><strong>Tipo de moneda:</strong> {{ Facturas.currency_id }}</p>
+        <p><strong>Nota pública:</strong> {{ Facturas.pub_note }}</p>
+        <p><strong>Nota privada:</strong> {{ Facturas.pri_note }}</p>
+        <!-- Añade más detalles aquí según sea necesario -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+<!-- <div class="container">
+    <div class="row d-flex justify-content-center align-items-center g-2">
+      <div class="col">
+        <h2>Factura {{factura.id}} de {{request.user}}</h2>
+        <div>
+          {{factura.descripcion}}
+          <p><b>{{factura.total}}</b></p>
+          {% if request.user.is_staff %} |
+          <a href="{% url 'facturas:facturas_update' factura.id %}">Editar</a> |
+          <a href="{% url 'facturas:facturas_delete' factura.id %}">Borrar</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div> -->

@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %} {% block title %}Producto detail{% endblock %}
+{%block content %}
+
+<div class="container">
+  <div class="row d-flex justify-content-center align-items-center g-2">
+    <div class="col">
+      <h2>Producto {{Productos.name}}</h2>
+      <div>
+        <h1>Detalle del producto</h1>
+        <p><strong> Nombre:</strong> {{ Productos.name }}</p>
+        <p><strong>Compañia:</strong> {{ Productos.company_id}}</p>
+        <p><strong>Precio:</strong> {{ Productos.price }}</p>
+        <p><strong>Porcentaje I.V.A:</strong> {{ Productos.vat_rate }}</p>
+        <p><strong>Cantidad:</strong> {{ Productos.default_qty }}</p>
+        <p><strong>País:</strong> {{ Productos.currency_id }}</p>
+        <p><strong>Excento de impuesto:</strong> {{ Productos.is_tax_exempt }}</p>
+        <p><strong>Nota:</strong> {{ Productos.note }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
