@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -15,7 +15,7 @@ from django.forms import modelformset_factory
 from django.contrib import messages
 from django.db import transaction  # Importación faltante
 
-=======
+
 # from django.views.generic.edit import CreateView, UpdateView, DeleteView
 # from django.views.generic.detail import DetailView
 # from django.views.generic.list import ListView
@@ -25,7 +25,7 @@ from django.db import transaction  # Importación faltante
 # from django.urls import reverse_lazy
 # from django.http import HttpResponse
 # from django.template.loader import get_template
->>>>>>> c9ac12bd1010249b420ec4e2d04d3d465571310b
+
 
 # from django.shortcuts import redirect
 
@@ -46,7 +46,7 @@ from django.db import transaction  # Importación faltante
 #         return super(StaffRequiredMixin, self).dispatch(request, *args, **kwargs) #el dispatch procesa la peticiones al servidor
     
 
-<<<<<<< HEAD
+
 @method_decorator(login_required, name='dispatch') #este decorador es para verificar si el usuario es staff y asi poder usar estas funcionalidades
 class FacturaCreateView(CreateView):
     model = Facturas
@@ -66,7 +66,7 @@ class FacturaCreateView(CreateView):
         context = self.get_context_data()
         messages.error(self.request, "Hubo un error al crear la factura. Por favor, revisa los datos.")
         return self.render_to_response(context)
-=======
+
 # @method_decorator(login_required, name='dispatch') #este decorador es para verificar si el usuario es staff y asi poder usar estas funcionalidades
 # class FacturaCreateView(CreateView): #el staffRequiredMixin que le pasamos como parametro es para comprobar si el usuario ha iniciado sesion para poder usar el create, 
 #     model = Facturas
@@ -75,7 +75,7 @@ class FacturaCreateView(CreateView):
 #     # success_url = reverse_lazy('facturas:facturas_list') #me redirecciona a la lista de las facturas
 #     def get_success_url(self):
 #         return reverse_lazy('facturas:facturas_list')
->>>>>>> c9ac12bd1010249b420ec4e2d04d3d465571310b
+
     
   
 
@@ -112,14 +112,14 @@ class FacturaCreateView(CreateView):
 #     success_url = reverse_lazy('facturas:facturas_list')
     
 
-<<<<<<< HEAD
+
 class FacturaDetailView(DetailView):
     model = Facturas
     context_object_name = 'Facturas'
-=======
+
 # class FacturaDetailView(DetailView):
 #     model = Facturas
->>>>>>> c9ac12bd1010249b420ec4e2d04d3d465571310b
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -373,7 +373,7 @@ class ContactoUpdateView(UpdateView):
     def get_success_url(self):
       
         return reverse_lazy('cliente:cliente_list')
-    
+
     
 @method_decorator(login_required, name='dispatch') 
 class ContactoDeleteView(DeleteView):
@@ -415,7 +415,6 @@ def direccion_por_cliente(request, cliente_id):
 
 #generar PDF
 
-<<<<<<< HEAD
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
@@ -442,7 +441,7 @@ from decimal import Decimal
 #             total += transaction.calcular_total()
 #         return total
     
-=======
+
 # from django.http import HttpResponse
 # from django.template.loader import get_template
 # from .models import Facturas
@@ -460,7 +459,7 @@ from decimal import Decimal
 #     }
 #     html_template = template.render(context)
 #     pdf_file = HTML(string=html_template).write_pdf()
->>>>>>> c9ac12bd1010249b420ec4e2d04d3d465571310b
+
 
 #     response = HttpResponse(content_type='application/pdf')
 #     response['Content-Disposition'] = f'attachment; filename="factura_{pk}.pdf"'
@@ -897,7 +896,7 @@ def generate_pdf(request, pk):
 #     pdf.setFillColor(colors.black) 
     
     
-<<<<<<< HEAD
+
 #     # Dibujar un rectángulo azul 3
 #     pdf.setFillColor(colors.darkblue)  
 #     pdf.setStrokeColor(colors.darkblue)  # Color del borde
@@ -978,7 +977,7 @@ def generate_pdf(request, pk):
 
 #     # Dibujar la tabla encima del fondo
 #         table.drawOn(pdf, x, y)
-=======
+
     # try:
         # factura = Facturas.objects.get(pk=pk)
         # template = get_template('facturas/factura_detail_pdf.html')
@@ -1003,7 +1002,7 @@ def generate_pdf(request, pk):
         # response['Content-Disposition'] = 'attachment; filename="output.pdf"'
         # print(pk)
         # return response
->>>>>>> c9ac12bd1010249b420ec4e2d04d3d465571310b
+
     
 
 #     # Totals section
