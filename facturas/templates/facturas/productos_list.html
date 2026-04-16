@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+{% block title %}Lista de Productos{% endblock %}
+
+{% block content %}
+
+<div
+    class="container-sm mt-5"
+>
+    <div
+        class="row justify-content-center align-items-center g-2"
+    >
+        
+            
+                <div class="col ">
+
+                    <a href="{% url 'productos:productos_create' %}"><button type="button" class="btn btn-primary mb-3">  
+                        <i class="bi bi-plus"></i> Agregar producto
+                      </button></a>
+
+                      <table
+                      class="table table-hover"
+                    >
+                    
+                      <thead>
+                        <tr>
+                          <th scope="col" >#</th>
+                          <th scope="col" style="text-align: center;">Nombre</th>
+                          <th scope="col" style="text-align: center;">Compañia</th>
+                          <th scope="col" style="text-align: center;">Precio</th>
+                          <th scope="col" style="text-align: center;">Porcentaje I.V.A</th>
+                          <th scope="col" style="text-align: center;">Cantidad</th>
+                          <th scope="col" style="text-align: center;">País</th>
+                          <th scope="col" style="text-align: center;">Excento de impuesto</th>
+                          <th scope="col" style="text-align: center;">Nota</th>
+                          <th scope="col" style="text-align: center;">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for producto in producto_list %}
+                        <tr class="">
+                          <td scope="row" style="text-align: center;">{{producto.id}}</td>
+                          <td style="text-align: center;">{{producto.name}}</td>
+                          <td style="text-align: center;">{{producto.company_id}}</td>
+                          <td style="text-align: center;">{{producto.price}} Bs</td>
+                          <td style="text-align: center;">{{producto.vat_rate}}</td>
+                          <td style="text-align: center;">{{producto.default_qty}}</td>
+                          <td style="text-align: center;">{{producto.currency_id}}</td>
+                          <td style="text-align: center;">{{producto.is_tax_exempt}}</td>
+                          <td style="text-align: center;">{{producto.note}}</td>
+                          <td style="text-align: center;">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  <box-icon name='menu'></box-icon>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li style="text-align: center;"><button class="btn btn-outline-primary px-1 mx-2 my-2"><a  href="{% url 'productos:productos_update' producto.id %}"><box-icon name='edit'></box-icon></a></button></li>
+                                  <li style="text-align: center;"><button class="btn btn-outline-danger px-1 mx-2 my-2"><a href="{% url 'productos:productos_delete' producto.id %}"><box-icon type='solid' name='message-square-x'></box-icon></a></button></li>
+                                  <li style="text-align: center;"><button class="btn btn-outline-info px-1 mx-2 my-2"><a href="{% url 'productos:productos_detail' producto.id %}"><box-icon name='spreadsheet'></box-icon></a></button></li>
+
+                                </ul>
+                              </div>
+                          </td>
+                        
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    
+                    </table>
+                </div>
+                  
+{% endblock %}
